@@ -209,6 +209,9 @@ export default function App() {
               <li key={id}><button onClick={() => scrollTo(id)}>{label}</button></li>
             ))}
           </ul>
+          <button className="nav-disclaimer" onClick={() => scrollTo("disclaimer")} title="Shipping & Care Info">
+            ✨ Care Guide
+          </button>
           <button className="nav-cart" onClick={() => setCartOpen(true)}>
             🛒 Cart ({cart.length})
           </button>
@@ -730,7 +733,7 @@ export default function App() {
               <button type="submit" className="submit-btn" disabled={formState.submitting}>
                 {formState.submitting ? "Sending…" : "✦ Send Consultation Request"}
               </button>
-              <div className="shipping-disclaimer">
+              <div className="shipping-disclaimer" id="disclaimer">
                 <h4 className="disclaimer-title">✨ A Little Love Note About Your Arrangement</h4>
                 <p className="shipping-free-note">🚚 <strong>Shipping is always free</strong> — because beautiful things should arrive at your door without any extra cost.</p>
                 <p>Your flowers have traveled to reach you — here's how to help them settle in and truly shine:</p>
