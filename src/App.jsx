@@ -6,7 +6,7 @@ import "./App.css";
 // ─────────────────────────────────────────────────────────────────
 // 1. STRIPE: Sign up at https://stripe.com → Developers → API Keys
 //    Copy your "Publishable key" and paste it below.
-const STRIPE_PUBLISHABLE_KEY = "pk_live_REPLACE_WITH_YOUR_STRIPE_KEY";
+const STRIPE_PUBLISHABLE_KEY = "const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;";
 
 // 2. FORMSPREE: Sign up at https://formspree.io → New Form
 //    Copy your form endpoint (looks like https://formspree.io/f/abcdefgh)
