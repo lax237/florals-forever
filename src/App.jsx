@@ -34,7 +34,7 @@ const GREENERY_OPTIONS = [
 const VASE_OPTIONS = [
   { id: "mason",      emoji: "🫙", name: "Mason Jar",      sub: "Rustic charm",     price: 12, stripeLink: "https://buy.stripe.com/bJebJ14mc2jNcig9FL9sk0m" },
   { id: "ceramic",    emoji: "🏺", name: "Ceramic Vase",   sub: "Artisan crafted",  price: 20, stripeLink: "https://buy.stripe.com/6oUaEX7yoaQj9644lr9sk0n" },
-  { id: "glass",      emoji: "🫗", name: "Clear Glass",    sub: "Timeless & clean", price: 14, stripeLink: "https://buy.stripe.com/3cI00j4mc8Ib820cRX9sk0o" },
+  { id: "glass",      emoji: "🍶", name: "Clear Glass",    sub: "Timeless & clean", price: 14, stripeLink: "https://buy.stripe.com/3cI00j4mc8Ib820cRX9sk0o" },
   { id: "terracotta", emoji: "🪣", name: "Terracotta Pot", sub: "Earthy & warm",    price: 16, stripeLink: "https://buy.stripe.com/5kQ4gz9Gw3nR820bNT9sk0p" },
 ];
 
@@ -171,14 +171,16 @@ export default function App() {
     <div className="app">
       <nav className="nav">
         <div className="nav-logo">Florals <em>Forever</em></div>
-        <ul className="nav-links">
-          {[["home","Home"],["portfolio","Shop"],["builder","Custom Builder"],["gender-reveal","Gender Reveal"],["booking","Book Consultation"]].map(([id, label]) => (
-            <li key={id}><button onClick={() => scrollTo(id)}>{label}</button></li>
-          ))}
-        </ul>
-        <button className="nav-cart" onClick={() => setCartOpen(true)}>
-          🛒 Cart ({cart.length})
-        </button>
+        <div className="nav-right">
+          <ul className="nav-links">
+            {[["home","Home"],["portfolio","Shop"],["builder","Custom Builder"],["gender-reveal","Gender Reveal"],["booking","Book Consultation"]].map(([id, label]) => (
+              <li key={id}><button onClick={() => scrollTo(id)}>{label}</button></li>
+            ))}
+          </ul>
+          <button className="nav-cart" onClick={() => setCartOpen(true)}>
+            🛒 Cart ({cart.length})
+          </button>
+        </div>
       </nav>
 
       <section id="home" className="hero">
@@ -494,7 +496,7 @@ export default function App() {
         </div>
       </section>
 
-      <section id="booking" className="section section--white">
+      <section id="booking" className="section section--tinted">
         <div className="section-header">
           <p className="eyebrow">✦ Work with Carl</p>
           <h2 className="section-title">Book a <em>Consultation</em></h2>
