@@ -23,7 +23,7 @@ const FILLER_OPTIONS = [
   { id: "babysbreath", emoji: "🤍", name: "Baby's Breath",   sub: "Soft & airy",        price: 6, stripeLink: "https://buy.stripe.com/dRm00j9Gw5vZ6XWdW19sk0e" },
   { id: "lavender",    emoji: "💜", name: "Lavender Sprigs", sub: "Fragrant feel",       price: 8, stripeLink: "https://buy.stripe.com/5kQfZh4mc4rV4PO9FL9sk0f" },
   { id: "wildflower",  emoji: "🌼", name: "Wildflowers",     sub: "Garden fresh",        price: 7, stripeLink: "https://buy.stripe.com/5kQ4gzcSI4rVaa8bNT9sk0g" },
-  { id: "statice",     emoji: "🫐", name: "Statice",         sub: "Purple cloud effect", price: 6, stripeLink: "https://buy.stripe.com/7sYfZhbOE9Mf4PO2dj9sk0h" },
+  { id: "statice",     emoji: "🌾", name: "Statice",         sub: "Soft, cloud-like clusters", price: 6, stripeLink: "https://buy.stripe.com/7sYfZhbOE9Mf4PO2dj9sk0h" },
 ];
 const GREENERY_OPTIONS = [
   { id: "eucalyptus", emoji: "🌿", name: "Eucalyptus",   sub: "Fresh & modern",     price: 8,  stripeLink: "https://buy.stripe.com/28E28r8Cs1fJfus6tz9sk0i" },
@@ -55,6 +55,7 @@ const SUBSTRATE_OPTIONS = [
   { id: "colored-sand",  emoji: "🏖️", name: "Colored Sand",       sub: "Soft & decorative" },
   { id: "aqua-gravel",   emoji: "🫧", name: "Aquarium Gravel",    sub: "Clean & refined" },
   { id: "dried-moss",    emoji: "🍃", name: "Dried Moss",         sub: "Rustic & textured" },
+  { id: "moss",          emoji: "🌿", name: "Moss",               sub: "Fresh & velvety" },
   { id: "dec-pebbles",   emoji: "⚪", name: "Decorative Pebbles", sub: "Classic & versatile" },
   { id: "wood-chips",    emoji: "🪵", name: "Wood Chips / Bark",  sub: "Warm & woodland" },
   { id: "lichen",        emoji: "🌱", name: "Preserved Lichen",   sub: "Botanical & unique" },
@@ -65,11 +66,35 @@ const SUBSTRATE_OPTIONS = [
   { id: "no-pref",       emoji: "✨", name: "No Preference",      sub: "Carl will choose" },
 ];
 
+const FLOWER_COLORS = {
+  rose:      ["Red", "White", "Yellow", "Pink", "Purple", "Orange", "Coral", "Lavender"],
+  peony:     ["White", "Blush Pink", "Hot Pink", "Coral", "Red", "Burgundy"],
+  lily:      ["White", "Pink", "Yellow", "Purple", "Orange", "Red"],
+  tulip:     ["Red", "Yellow", "White", "Pink", "Purple", "Orange", "Black"],
+  sunflower: ["Classic Yellow", "Autumn Orange", "Cream White", "Deep Red", "Lemon Yellow"],
+  orchid:    ["White", "Purple", "Pink", "Yellow", "Blue", "Magenta"],
+  babysbreath: ["White", "Pink", "Lavender", "Yellow"],
+  lavender:  ["Classic Purple", "Deep Violet", "Pale Lilac", "White"],
+  wildflower:["Mixed Rainbow", "Warm Tones", "Cool Tones", "Pastel Mix", "White & Cream"],
+  statice:   ["Purple", "White", "Pink", "Lavender", "Yellow", "Blue"],
+  eucalyptus:["Silver Green", "Deep Green", "Blue-Green"],
+  fern:      ["Bright Green", "Deep Forest Green"],
+  ivy:       ["Classic Green", "Variegated Green & White"],
+  succulent: ["Green Mix", "Purple-Tipped", "Blue-Green", "Red-Tipped"],
+};
+
 const OCCASIONS = ["Birthday", "Anniversary", "Wedding", "Home Décor", "Business / Office", "Sympathy", "Just Because", "Holiday"];
 
-const BUILDER_STEPS = ["Focal Flower", "Filler", "Greenery", "Substrate", "Vase"];
-const BUILDER_DATA  = [FOCAL_OPTIONS, FILLER_OPTIONS, GREENERY_OPTIONS, SUBSTRATE_OPTIONS, VASE_OPTIONS];
-const BUILDER_KEYS  = ["focal", "filler", "greenery", "substrate", "vase"];
+const SIZE_OPTIONS = [
+  { id: "small",    emoji: "🌱", name: "Small",       sub: "Tabletop & petite",         price: 0 },
+  { id: "medium",   emoji: "🌿", name: "Medium",      sub: "Centerpiece & everyday",    price: 15 },
+  { id: "large",    emoji: "🌳", name: "Large",       sub: "Statement & floor piece",   price: 35 },
+  { id: "xlarge",   emoji: "🏡", name: "Extra Large", sub: "Grand & full installation", price: 60 },
+];
+
+const BUILDER_STEPS = ["Focal Flower", "Filler", "Greenery", "Substrate", "Vase", "Size"];
+const BUILDER_DATA  = [FOCAL_OPTIONS, FILLER_OPTIONS, GREENERY_OPTIONS, SUBSTRATE_OPTIONS, VASE_OPTIONS, SIZE_OPTIONS];
+const BUILDER_KEYS  = ["focal", "filler", "greenery", "substrate", "vase", "size"];
 
 export default function App() {
   const [cart, setCart]                       = useState([]);
@@ -78,7 +103,9 @@ export default function App() {
   const [toast, setToast]                     = useState(null);
   const [builderMode, setBuilderMode]         = useState("guided"); // "guided" | "custom"
   const [builderStep, setBuilderStep]         = useState(0);
-  const [builderSel, setBuilderSel]           = useState({ focal: null, filler: null, greenery: null, substrate: null, vase: null });
+  const [builderSel, setBuilderSel]           = useState({ focal: null, filler: null, greenery: null, substrate: null, vase: null, size: null });
+  const [builderColors, setBuilderColors]     = useState({ focal: "", filler: "", greenery: "" });
+  const [builderNotes, setBuilderNotes]       = useState("");
   const [bookingOccasion, setBookingOccasion] = useState([]);
 
   const showToast = (msg) => {
@@ -132,21 +159,34 @@ export default function App() {
     return s + (found && found.price !== undefined ? found.price : 0);
   }, 35);
 
+  // Color label helpers
+  const getColorKey = (stepKey) => ["focal","filler","greenery"].includes(stepKey) ? stepKey : null;
+  const getColorsForStep = (stepKey, selId) => {
+    if (!selId) return [];
+    return FLOWER_COLORS[selId] || [];
+  };
+
   const addCustomToCart = () => {
     const components = BUILDER_KEYS.map((k, i) => {
-      const sel = BUILDER_DATA[i].find((o) => o.id === builderSel[k]);
-      return sel ? `${sel.emoji} ${sel.name}` : null;
+      const selId = builderSel[k];
+      if (!selId || selId === "__skip__") return null;
+      const sel = BUILDER_DATA[i].find((o) => o.id === selId);
+      if (!sel) return null;
+      const color = builderColors[k] ? ` (${builderColors[k]})` : "";
+      return `${sel.emoji} ${sel.name}${color}`;
     }).filter(Boolean).join(", ");
 
     const customItem = {
-      name: `Custom Arrangement (${components})`,
+      name: `Custom Arrangement (${components}${builderNotes ? ` · Note: ${builderNotes.slice(0,40)}…` : ""})`,
       price: builderPrice,
       cartId: Date.now() + Math.random(),
     };
     setCart((c) => [...c, customItem]);
     showToast(`✿ Custom arrangement added to your cart`);
     setBuilderStep(0);
-    setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null });
+    setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null, size: null });
+    setBuilderColors({ focal: "", filler: "", greenery: "" });
+    setBuilderNotes("");
   };
 
   // ── FIXED: sends all selected components to /api/checkout instead of
@@ -156,11 +196,14 @@ export default function App() {
     const items = [
       { name: "Custom Arrangement — Base & Labour", price: 35 },
       ...BUILDER_KEYS.map((k, i) => {
-        const sel = BUILDER_DATA[i].find((o) => o.id === builderSel[k]);
+        const selId = builderSel[k];
+        if (!selId || selId === "__skip__") return null;
+        const sel = BUILDER_DATA[i].find((o) => o.id === selId);
         if (!sel) return null;
-        // Substrate has no fixed price — include as a $0 note line item
-        return { name: `${BUILDER_STEPS[i]}: ${sel.name}${sel.price === undefined ? " (priced by weight)" : ""}`, price: sel.price !== undefined ? sel.price : 0 };
+        const color = builderColors[k] ? ` · ${builderColors[k]}` : "";
+        return { name: `${BUILDER_STEPS[i]}: ${sel.name}${color}${sel.price === undefined ? " (priced by weight)" : ""}`, price: sel.price !== undefined ? sel.price : 0 };
       }).filter(Boolean),
+      ...(builderNotes ? [{ name: `Special Requests: ${builderNotes}`, price: 0 }] : []),
     ];
     try {
       const res = await fetch("/api/checkout", {
@@ -176,7 +219,9 @@ export default function App() {
         const top  = (window.screen.height - h) / 2;
         window.open(data.url, "_blank", `width=${Math.round(w)},height=${Math.round(h)},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`);
         setBuilderStep(0);
-        setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null });
+        setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null, size: null });
+        setBuilderColors({ focal: "", filler: "", greenery: "" });
+        setBuilderNotes("");
       } else {
         alert(data.error || "Could not start checkout. Please try again.");
         setCheckingOut(false);
@@ -220,7 +265,7 @@ export default function App() {
 
       <section id="home" className="hero">
         <div className="hero-content">
-          <p className="eyebrow">✦ Handcrafted by Carl · Gainesville, Florida</p>
+          <p className="eyebrow">✦ Handcrafted by Carl · Gainesville, Florida ✦</p>
           <h1 className="hero-title">Arrangements that<br /><em>last a lifetime</em></h1>
           <p className="hero-sub">
             Each piece is lovingly handcrafted from premium artificial flowers — focal blooms,
@@ -242,7 +287,7 @@ export default function App() {
 
       <section id="portfolio" className="section section--white">
         <div className="section-header">
-          <p className="eyebrow">✦ The Collection</p>
+          <p className="eyebrow">✦ The Collection ✦</p>
           <h2 className="section-title">Ready-Made <em>Arrangements</em></h2>
           <p className="section-sub">Each one handcrafted, ready to ship. Yours forever.</p>
         </div>
@@ -269,7 +314,7 @@ export default function App() {
 
       <section id="builder" className="section section--tinted">
         <div className="section-header">
-          <p className="eyebrow">✦ Design Studio</p>
+          <p className="eyebrow">✦ Design Studio ✦</p>
           <h2 className="section-title">Build Your <em>Custom</em> Arrangement</h2>
           <p className="section-sub">Pick each element and Carl will bring your vision to life — or describe your dream arrangement in your own words.</p>
         </div>
@@ -300,10 +345,19 @@ export default function App() {
                   {s}
                 </div>
               ))}
+              <div className={`builder-step ${builderStep === 6 ? "active" : builderNotes ? "done" : ""}`}>
+                <span className="step-num">{builderNotes ? "✓" : 7}</span>
+                Notes
+              </div>
             </div>
-            {builderStep < 4 ? (
+
+            {builderStep < 6 ? (
               <>
-                <h3 className="builder-prompt">Choose your {BUILDER_STEPS[builderStep]}</h3>
+                <h3 className="builder-prompt">
+                  {builderSel[BUILDER_KEYS[builderStep]]
+                    ? `✓ ${BUILDER_DATA[builderStep].find(o => o.id === builderSel[BUILDER_KEYS[builderStep]])?.name} selected`
+                    : `Choose your ${BUILDER_STEPS[builderStep]}`}
+                </h3>
                 <div className={`options-grid ${
                   BUILDER_DATA[builderStep].length === 4 ? "options-grid--2col" :
                   BUILDER_DATA[builderStep].length > 8 ? "options-grid--4col" : ""
@@ -315,16 +369,56 @@ export default function App() {
                       <div className="option-name">{opt.name}</div>
                       <div className="option-sub">{opt.sub}</div>
                       <div className="option-price">
-                      {opt.price !== undefined ? `+$${opt.price}` : <span className="option-price-tbd">+ To be determined by weight</span>}
-                    </div>
+                        {opt.price !== undefined ? `+$${opt.price}` : <span className="option-price-tbd">+ To be determined by weight</span>}
+                      </div>
                     </div>
                   ))}
                 </div>
+
+                {/* Color dropdown for focal, filler, greenery steps */}
+                {getColorKey(BUILDER_KEYS[builderStep]) && builderSel[BUILDER_KEYS[builderStep]] && (
+                  <div className="color-picker-wrap">
+                    <label className="color-picker-label">🎨 Choose a color for your {BUILDER_STEPS[builderStep].toLowerCase()}:</label>
+                    <select
+                      className="color-picker-select"
+                      value={builderColors[BUILDER_KEYS[builderStep]]}
+                      onChange={(e) => setBuilderColors((c) => ({ ...c, [BUILDER_KEYS[builderStep]]: e.target.value }))}
+                    >
+                      <option value="">— Select a color (optional) —</option>
+                      {getColorsForStep(BUILDER_KEYS[builderStep], builderSel[BUILDER_KEYS[builderStep]]).map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                      <option value="Carl's choice">Carl's choice — surprise me!</option>
+                    </select>
+                  </div>
+                )}
+
                 <div className="builder-nav">
                   <button className="btn-outline" onClick={() => setBuilderStep((s) => Math.max(0, s - 1))} disabled={builderStep === 0}>← Back</button>
-                  <button className="btn-primary" onClick={() => setBuilderStep((s) => s + 1)} disabled={!builderSel[BUILDER_KEYS[builderStep]]}>
-                    {builderStep === 3 ? "Review →" : "Next →"}
+                  <button className="btn-skip" onClick={() => { setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: "__skip__" })); setBuilderStep((s) => s + 1); }}>
+                    Skip →
                   </button>
+                  <button className="btn-primary" onClick={() => setBuilderStep((s) => s + 1)}>
+                    {builderStep === 5 ? "Almost Done →" : "Next →"}
+                  </button>
+                </div>
+              </>
+            ) : builderStep === 6 ? (
+              <>
+                <h3 className="builder-prompt">✍ Any special requests or details?</h3>
+                <div className="builder-notes-wrap">
+                  <textarea
+                    className="form-textarea builder-notes-textarea"
+                    placeholder="Tell Carl anything extra — ribbon color, occasion, specific placement of flowers, a personal message to include, fragrance preferences, packaging requests, or anything else on your mind. The more detail, the better!"
+                    value={builderNotes}
+                    onChange={(e) => setBuilderNotes(e.target.value)}
+                  />
+                  <p className="builder-notes-hint">This step is optional — click Skip to go straight to your summary.</p>
+                </div>
+                <div className="builder-nav">
+                  <button className="btn-outline" onClick={() => setBuilderStep(5)}>← Back</button>
+                  <button className="btn-skip" onClick={() => setBuilderStep(7)}>Skip →</button>
+                  <button className="btn-primary" onClick={() => setBuilderStep(7)}>Review My Arrangement →</button>
                 </div>
               </>
             ) : (
@@ -332,14 +426,24 @@ export default function App() {
                 <div className="builder-summary">
                   <div className="summary-title">✦ Your Custom Arrangement</div>
                   {BUILDER_KEYS.map((k, i) => {
-                    const sel = BUILDER_DATA[i].find((o) => o.id === builderSel[k]);
-                    return sel ? (
+                    const selId = builderSel[k];
+                    if (!selId || selId === "__skip__") return null;
+                    const sel = BUILDER_DATA[i].find((o) => o.id === selId);
+                    if (!sel) return null;
+                    const colorLabel = builderColors[k] ? ` · ${builderColors[k]}` : "";
+                    return (
                       <div key={k} className="summary-row">
                         <span>{BUILDER_STEPS[i]}</span>
-                        <span>{sel.emoji} {sel.name} {sel.price !== undefined ? `(+$${sel.price})` : <em className="tbd-tag">(+ TBD by weight)</em>}</span>
+                        <span>{sel.emoji} {sel.name}{colorLabel} {sel.price !== undefined ? `(+$${sel.price})` : <em className="tbd-tag">(+ TBD by weight)</em>}</span>
                       </div>
-                    ) : null;
+                    );
                   })}
+                  {builderNotes && (
+                    <div className="summary-row summary-row--notes">
+                      <span>Notes</span>
+                      <span className="summary-notes-text">"{builderNotes}"</span>
+                    </div>
+                  )}
                   <div className="summary-row"><span>Base price</span><span>$35</span></div>
                   <div className="summary-total"><span>Total</span><span>${builderPrice}</span></div>
                 </div>
@@ -441,7 +545,7 @@ export default function App() {
       {/* ── GENDER REVEAL ── */}
       <section id="gender-reveal" className="section section--white">
         <div className="section-header">
-          <p className="eyebrow">✦ Celebrate New Life</p>
+          <p className="eyebrow">✦ Celebrate New Life ✦</p>
           <h2 className="section-title">Gender Reveal <em>Arrangements</em></h2>
           <p className="section-sub">A beautiful handcrafted floral arrangement to celebrate your little one. Carl will create a custom blue or pink design — just for you.</p>
         </div>
@@ -472,6 +576,19 @@ export default function App() {
           {/* Request form — shown after a choice is made */}
           {genderChoice && (
             <div className="gender-form-wrap">
+              <div className="gender-visual-prompt">
+                <div className="gender-visual-banner" style={{background: genderChoice === "boy" ? "linear-gradient(135deg,#d0e8f8,#e8f2fc)" : "linear-gradient(135deg,#f8d0e4,#fce8f2)"}}>
+                  <span className="gender-visual-icon">{genderChoice === "boy" ? "💙🌿🤍" : "🩷🌸🤍"}</span>
+                  <div className="gender-visual-text">
+                    <h4>{genderChoice === "boy" ? "A Blue Floral Masterpiece" : "A Pink Floral Masterpiece"}</h4>
+                    <p>{genderChoice === "boy"
+                      ? "Carl will handcraft a stunning arrangement in cool blues, crisp whites & lush greens — delphiniums, hydrangeas, white roses & eucalyptus — celebrating your baby boy in timeless style."
+                      : "Carl will handcraft a breathtaking arrangement in blush pinks, soft creams & delicate whites — peonies, ranunculus, roses & baby's breath — celebrating your baby girl with elegance."
+                    }</p>
+                    <p className="gender-visual-cta">✍ Use the form below to describe any extra details, choose your vase, and let Carl know your vision!</p>
+                  </div>
+                </div>
+              </div>
               {genderForm.succeeded ? (
                 <div className="success-msg">
                   <div className="success-icon">{genderChoice === "boy" ? "💙" : "🩷"}</div>
@@ -562,7 +679,7 @@ export default function App() {
       {/* ── BRIDAL ── */}
       <section id="bridal" className="section section--tinted">
         <div className="section-header">
-          <p className="eyebrow">✦ Forever Begins Here</p>
+          <p className="eyebrow">✦ Forever Begins Here ✦</p>
           <h2 className="section-title">Bridal <em>Collections</em></h2>
           <p className="section-sub">Handcrafted artificial arrangements that last long after the wedding day — bouquets, centerpieces & more, designed by Carl.</p>
         </div>
@@ -676,7 +793,7 @@ export default function App() {
 
       <section id="booking" className="section section--tinted">
         <div className="section-header">
-          <p className="eyebrow">✦ Work with Carl</p>
+          <p className="eyebrow">✦ Work with Carl ✦</p>
           <h2 className="section-title">Book a <em>Consultation</em></h2>
           <p className="section-sub">Have a vision? Let's talk. Carl personally designs every arrangement.</p>
         </div>
