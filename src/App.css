@@ -224,6 +224,28 @@ body {
 }
 .options-grid--2col {
   grid-template-columns: repeat(2, 1fr);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 1.25rem;
+}
+.options-grid--2col .option-card {
+  padding: 2rem 1.5rem;
+}
+.options-grid--2col .option-emoji {
+  font-size: 3.2rem;
+}
+.options-grid--2col .option-name {
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
+}
+.options-grid--2col .option-sub {
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+}
+.options-grid--2col .option-price {
+  font-size: 1rem;
+  margin-top: 0.5rem;
 }
 .options-grid--4col {
   grid-template-columns: repeat(4, 1fr);
