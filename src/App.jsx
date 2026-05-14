@@ -60,7 +60,7 @@ const SUBSTRATE_OPTIONS = [
   { id: "lichen",        emoji: "🌱", name: "Preserved Lichen",   sub: "Botanical & unique" },
   { id: "sea-glass",     emoji: "💚", name: "Sea Glass",          sub: "Coastal & elegant" },
   { id: "lava-rocks",   emoji: "🌋", name: "Lava Rocks",         sub: "Volcanic & dramatic" },
-  { id: "wood-wall",    emoji: "🪵", name: "Wood Wall",           sub: "Textured & rustic" },
+  { id: "wood-wool",    emoji: "🪵", name: "Wood Wool",           sub: "Soft & textured" },
   { id: "dec-gems",     emoji: "💎", name: "Decorative Gemstones", sub: "Glamorous & sparkling" },
   { id: "no-pref",       emoji: "✨", name: "No Preference",      sub: "Carl will choose" },
 ];
