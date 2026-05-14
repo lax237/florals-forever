@@ -100,6 +100,23 @@ export default function App() {
     return s + (found ? found.price : 0);
   }, 35);
 
+  const addCustomToCart = () => {
+    const components = BUILDER_KEYS.map((k, i) => {
+      const sel = BUILDER_DATA[i].find((o) => o.id === builderSel[k]);
+      return sel ? `${sel.emoji} ${sel.name}` : null;
+    }).filter(Boolean).join(", ");
+
+    const customItem = {
+      name: `Custom Arrangement (${components})`,
+      price: builderPrice,
+      cartId: Date.now() + Math.random(),
+    };
+    setCart((c) => [...c, customItem]);
+    showToast(`✿ Custom arrangement added to your cart`);
+    setBuilderStep(0);
+    setBuilderSel({ focal: null, filler: null, greenery: null, vase: null });
+  };
+
   // ── FIXED: sends all selected components to /api/checkout instead of
   //           redirecting to the vase's individual Stripe link only.
   const buyCustom = async () => {
@@ -255,6 +272,7 @@ export default function App() {
               </div>
               <div className="builder-nav">
                 <button className="btn-outline" onClick={() => setBuilderStep(0)}>Start Over</button>
+                <button className="add-to-cart" onClick={addCustomToCart}>Add to Cart</button>
                 <button className="btn-primary" onClick={buyCustom} disabled={checkingOut}>
                   {checkingOut ? "Redirecting to Stripe…" : `Buy Now — $${builderPrice}`}
                 </button>
