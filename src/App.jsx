@@ -100,15 +100,36 @@ export default function App() {
     return s + (found ? found.price : 0);
   }, 35);
 
-  const buyCustom = () => {
-    const vase = VASE_OPTIONS.find((o) => o.id === builderSel.vase);
-    if (vase?.stripeLink) {
-      window.location.href = vase.stripeLink;
-    } else {
-      alert("Please use the Book a Consultation form to complete your custom order!");
+  // ── FIXED: sends all selected components to /api/checkout instead of
+  //           redirecting to the vase's individual Stripe link only.
+  const buyCustom = async () => {
+    setCheckingOut(true);
+    const items = [
+      { name: "Custom Arrangement — Base & Labour", price: 35 },
+      ...BUILDER_KEYS.map((k, i) => {
+        const sel = BUILDER_DATA[i].find((o) => o.id === builderSel[k]);
+        return sel ? { name: `${BUILDER_STEPS[i]}: ${sel.name}`, price: sel.price } : null;
+      }).filter(Boolean),
+    ];
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+        setBuilderStep(0);
+        setBuilderSel({ focal: null, filler: null, greenery: null, vase: null });
+      } else {
+        alert(data.error || "Could not start checkout. Please try again.");
+        setCheckingOut(false);
+      }
+    } catch {
+      alert("Network error. Please check your connection and try again.");
+      setCheckingOut(false);
     }
-    setBuilderStep(0);
-    setBuilderSel({ focal: null, filler: null, greenery: null, vase: null });
   };
 
   const scrollTo = (id) => {
@@ -234,7 +255,9 @@ export default function App() {
               </div>
               <div className="builder-nav">
                 <button className="btn-outline" onClick={() => setBuilderStep(0)}>Start Over</button>
-                <button className="btn-primary" onClick={buyCustom}>Buy Now — ${builderPrice}</button>
+                <button className="btn-primary" onClick={buyCustom} disabled={checkingOut}>
+                  {checkingOut ? "Redirecting to Stripe…" : `Buy Now — $${builderPrice}`}
+                </button>
               </div>
             </div>
           )}
