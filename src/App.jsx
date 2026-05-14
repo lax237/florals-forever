@@ -269,7 +269,7 @@ export default function App() {
             {builderStep < 4 ? (
               <>
                 <h3 className="builder-prompt">Choose your {BUILDER_STEPS[builderStep]}</h3>
-                <div className="options-grid">
+                <div className={`options-grid ${BUILDER_DATA[builderStep].length === 4 ? "options-grid--2col" : ""}`}>
                   {BUILDER_DATA[builderStep].map((opt) => (
                     <div key={opt.id} className={`option-card ${builderSel[BUILDER_KEYS[builderStep]] === opt.id ? "selected" : ""}`}
                       onClick={() => setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: opt.id }))}>
