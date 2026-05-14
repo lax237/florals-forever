@@ -1,10 +1,20 @@
-import Stripe from "stripe";
+const Stripe = require("stripe");
 
 // Vercel serverless function — runs securely on the server, never in the browser.
 // Your secret key is read from Vercel's Environment Variables, not hardcoded.
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
+  // Allow CORS for your Vercel frontend
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Handle preflight
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   // Only allow POST requests
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -33,10 +43,8 @@ export default async function handler(req, res) {
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
-      // After payment, customer is sent back to your site
       success_url: `${req.headers.origin}/?order=success`,
       cancel_url:  `${req.headers.origin}/?order=cancelled`,
-      // Pre-fills the email field on Stripe's checkout page if available
       billing_address_collection: "auto",
       shipping_address_collection: {
         allowed_countries: ["US"],
@@ -51,6 +59,6 @@ export default async function handler(req, res) {
     res.status(200).json({ url: session.url });
   } catch (err) {
     console.error("Stripe error:", err.message);
-    res.status(500).json({ error: "Payment session could not be created. Please try again." });
+    res.status(500).json({ error: err.message });
   }
 }
