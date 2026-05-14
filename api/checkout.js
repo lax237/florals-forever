@@ -1,10 +1,10 @@
-const Stripe = require("stripe");
+import Stripe from "stripe";
 
 // Vercel serverless function — runs securely on the server, never in the browser.
 // Your secret key is read from Vercel's Environment Variables, not hardcoded.
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // Allow CORS for your Vercel frontend
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -61,4 +61,4 @@ module.exports = async function handler(req, res) {
     console.error("Stripe error:", err.message);
     res.status(500).json({ error: "Payment session could not be created. Please try again." });
   }
-};
+}
