@@ -76,7 +76,11 @@ export default function App() {
       });
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url;
+        const w = Math.min(window.screen.width * 0.85, 1100);
+        const h = Math.min(window.screen.height * 0.85, 800);
+        const left = (window.screen.width - w) / 2;
+        const top  = (window.screen.height - h) / 2;
+        window.open(data.url, "_blank", `width=${Math.round(w)},height=${Math.round(h)},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`);
       } else {
         alert("Error: " + (data.error || "Could not start checkout. Please try again."));
         setCheckingOut(false);
@@ -136,7 +140,11 @@ export default function App() {
       });
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url;
+        const w = Math.min(window.screen.width * 0.85, 1100);
+        const h = Math.min(window.screen.height * 0.85, 800);
+        const left = (window.screen.width - w) / 2;
+        const top  = (window.screen.height - h) / 2;
+        window.open(data.url, "_blank", `width=${Math.round(w)},height=${Math.round(h)},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`);
         setBuilderStep(0);
         setBuilderSel({ focal: null, filler: null, greenery: null, vase: null });
       } else {
@@ -272,7 +280,7 @@ export default function App() {
               </div>
               <div className="builder-nav">
                 <button className="btn-outline" onClick={() => setBuilderStep(0)}>Start Over</button>
-                <button className="add-to-cart" onClick={addCustomToCart}>Add to Cart</button>
+                <button className="btn-add-to-cart" onClick={addCustomToCart}>Add to Cart</button>
                 <button className="btn-primary" onClick={buyCustom} disabled={checkingOut}>
                   {checkingOut ? "Redirecting to Stripe…" : `Buy Now — $${builderPrice}`}
                 </button>
