@@ -49,6 +49,7 @@ export default function App() {
   const [cartOpen, setCartOpen]               = useState(false);
   const [checkingOut, setCheckingOut]         = useState(false);
   const [toast, setToast]                     = useState(null);
+  const [builderMode, setBuilderMode]         = useState("guided"); // "guided" | "custom"
   const [builderStep, setBuilderStep]         = useState(0);
   const [builderSel, setBuilderSel]           = useState({ focal: null, filler: null, greenery: null, vase: null });
   const [bookingOccasion, setBookingOccasion] = useState([]);
@@ -162,13 +163,16 @@ export default function App() {
   };
 
   const [formState, handleBookingSubmit] = useForm("xpqbelga");
+  const [customForm, handleCustomSubmit]  = useForm("xpqbelga"); // reuses same Formspree endpoint
+  const [genderForm, handleGenderSubmit]  = useForm("xpqbelga"); // gender reveal requests
+  const [genderChoice, setGenderChoice]   = useState(null);      // "boy" | "girl" | null
 
   return (
     <div className="app">
       <nav className="nav">
         <div className="nav-logo">Florals <em>Forever</em></div>
         <ul className="nav-links">
-          {[["home","Home"],["portfolio","Shop"],["builder","Custom Builder"],["booking","Book Consultation"]].map(([id, label]) => (
+          {[["home","Home"],["portfolio","Shop"],["builder","Custom Builder"],["gender-reveal","Gender Reveal"],["booking","Book Consultation"]].map(([id, label]) => (
             <li key={id}><button onClick={() => scrollTo(id)}>{label}</button></li>
           ))}
         </ul>
@@ -230,61 +234,261 @@ export default function App() {
         <div className="section-header">
           <p className="eyebrow">✦ Design Studio</p>
           <h2 className="section-title">Build Your <em>Custom</em> Arrangement</h2>
-          <p className="section-sub">Pick each element and Carl will bring your vision to life.</p>
+          <p className="section-sub">Pick each element and Carl will bring your vision to life — or describe your dream arrangement in your own words.</p>
         </div>
         <div className="builder-inner">
-          <div className="builder-steps">
-            {BUILDER_STEPS.map((s, i) => (
-              <div key={s} className={`builder-step ${builderStep === i ? "active" : builderSel[BUILDER_KEYS[i]] ? "done" : ""}`}>
-                <span className="step-num">{builderSel[BUILDER_KEYS[i]] ? "✓" : i + 1}</span>
-                {s}
-              </div>
-            ))}
+
+          {/* ── MODE TABS ── */}
+          <div className="builder-tabs">
+            <button
+              className={`builder-tab ${builderMode === "guided" ? "active" : ""}`}
+              onClick={() => setBuilderMode("guided")}
+            >
+              ✦ Step-by-Step Builder
+            </button>
+            <button
+              className={`builder-tab ${builderMode === "custom" ? "active" : ""}`}
+              onClick={() => setBuilderMode("custom")}
+            >
+              ✍ Describe Your Own
+            </button>
           </div>
-          {builderStep < 4 ? (
-            <>
-              <h3 className="builder-prompt">Choose your {BUILDER_STEPS[builderStep]}</h3>
-              <div className="options-grid">
-                {BUILDER_DATA[builderStep].map((opt) => (
-                  <div key={opt.id} className={`option-card ${builderSel[BUILDER_KEYS[builderStep]] === opt.id ? "selected" : ""}`}
-                    onClick={() => setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: opt.id }))}>
-                    <span className="option-emoji">{opt.emoji}</span>
-                    <div className="option-name">{opt.name}</div>
-                    <div className="option-sub">{opt.sub}</div>
-                    <div className="option-price">+${opt.price}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="builder-nav">
-                <button className="btn-outline" onClick={() => setBuilderStep((s) => Math.max(0, s - 1))} disabled={builderStep === 0}>← Back</button>
-                <button className="btn-primary" onClick={() => setBuilderStep((s) => s + 1)} disabled={!builderSel[BUILDER_KEYS[builderStep]]}>
-                  {builderStep === 3 ? "Review →" : "Next →"}
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="builder-review">
-              <div className="builder-summary">
-                <div className="summary-title">✦ Your Custom Arrangement</div>
-                {BUILDER_KEYS.map((k, i) => {
-                  const sel = BUILDER_DATA[i].find((o) => o.id === builderSel[k]);
-                  return sel ? (
-                    <div key={k} className="summary-row">
-                      <span>{BUILDER_STEPS[i]}</span>
-                      <span>{sel.emoji} {sel.name} (+${sel.price})</span>
+
+          {/* ── GUIDED BUILDER ── */}
+          {builderMode === "guided" && (<>
+            <div className="builder-steps">
+              {BUILDER_STEPS.map((s, i) => (
+                <div key={s} className={`builder-step ${builderStep === i ? "active" : builderSel[BUILDER_KEYS[i]] ? "done" : ""}`}>
+                  <span className="step-num">{builderSel[BUILDER_KEYS[i]] ? "✓" : i + 1}</span>
+                  {s}
+                </div>
+              ))}
+            </div>
+            {builderStep < 4 ? (
+              <>
+                <h3 className="builder-prompt">Choose your {BUILDER_STEPS[builderStep]}</h3>
+                <div className="options-grid">
+                  {BUILDER_DATA[builderStep].map((opt) => (
+                    <div key={opt.id} className={`option-card ${builderSel[BUILDER_KEYS[builderStep]] === opt.id ? "selected" : ""}`}
+                      onClick={() => setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: opt.id }))}>
+                      <span className="option-emoji">{opt.emoji}</span>
+                      <div className="option-name">{opt.name}</div>
+                      <div className="option-sub">{opt.sub}</div>
+                      <div className="option-price">+${opt.price}</div>
                     </div>
-                  ) : null;
-                })}
-                <div className="summary-row"><span>Base price</span><span>$35</span></div>
-                <div className="summary-total"><span>Total</span><span>${builderPrice}</span></div>
+                  ))}
+                </div>
+                <div className="builder-nav">
+                  <button className="btn-outline" onClick={() => setBuilderStep((s) => Math.max(0, s - 1))} disabled={builderStep === 0}>← Back</button>
+                  <button className="btn-primary" onClick={() => setBuilderStep((s) => s + 1)} disabled={!builderSel[BUILDER_KEYS[builderStep]]}>
+                    {builderStep === 3 ? "Review →" : "Next →"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="builder-review">
+                <div className="builder-summary">
+                  <div className="summary-title">✦ Your Custom Arrangement</div>
+                  {BUILDER_KEYS.map((k, i) => {
+                    const sel = BUILDER_DATA[i].find((o) => o.id === builderSel[k]);
+                    return sel ? (
+                      <div key={k} className="summary-row">
+                        <span>{BUILDER_STEPS[i]}</span>
+                        <span>{sel.emoji} {sel.name} (+${sel.price})</span>
+                      </div>
+                    ) : null;
+                  })}
+                  <div className="summary-row"><span>Base price</span><span>$35</span></div>
+                  <div className="summary-total"><span>Total</span><span>${builderPrice}</span></div>
+                </div>
+                <div className="builder-nav">
+                  <button className="btn-outline" onClick={() => setBuilderStep(0)}>Start Over</button>
+                  <button className="btn-add-to-cart" onClick={addCustomToCart}>Add to Cart</button>
+                  <button className="btn-primary" onClick={buyCustom} disabled={checkingOut}>
+                    {checkingOut ? "Redirecting to Stripe…" : `Buy Now — $${builderPrice}`}
+                  </button>
+                </div>
               </div>
-              <div className="builder-nav">
-                <button className="btn-outline" onClick={() => setBuilderStep(0)}>Start Over</button>
-                <button className="btn-add-to-cart" onClick={addCustomToCart}>Add to Cart</button>
-                <button className="btn-primary" onClick={buyCustom} disabled={checkingOut}>
-                  {checkingOut ? "Redirecting to Stripe…" : `Buy Now — $${builderPrice}`}
-                </button>
-              </div>
+            )}
+          </>)}
+
+          {/* ── DESCRIBE YOUR OWN ── */}
+          {builderMode === "custom" && (
+            <div className="custom-request">
+              {customForm.succeeded ? (
+                <div className="success-msg">
+                  <div className="success-icon">✿</div>
+                  <h3>Request Received!</h3>
+                  <p>Carl will review your vision and reach out within 24 hours with a quote.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="custom-request-intro">
+                    <p>Not sure where to start? No problem. Describe your dream arrangement below — the flowers, colors, style, size, occasion, or anything else on your mind. Carl will personally review your request and send you a custom quote.</p>
+                  </div>
+                  <form onSubmit={handleCustomSubmit} className="booking-form">
+                    <input type="hidden" name="request_type" value="Describe Your Own Arrangement" />
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="custom-name">Your Name</label>
+                        <input id="custom-name" name="name" className="form-input" placeholder="Jane Smith" required />
+                        <ValidationError field="name" errors={customForm.errors} className="field-error" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="custom-email">Email</label>
+                        <input id="custom-email" name="email" type="email" className="form-input" placeholder="jane@email.com" required />
+                        <ValidationError field="email" errors={customForm.errors} className="field-error" />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="custom-vision">Describe Your Arrangement</label>
+                      <textarea
+                        id="custom-vision"
+                        name="arrangement_description"
+                        className="form-textarea custom-textarea"
+                        placeholder={"Tell Carl everything! For example:\n• Focal flowers: roses, peonies, sunflowers, lilies, tulips, orchids — or something else entirely\n• Fillers: baby's breath, lavender, wildflowers, statice, or your own ideas\n• Greenery: eucalyptus, ferns, trailing ivy, succulents, or anything you love\n• Vase or container: mason jar, ceramic vase, clear glass, terracotta, or describe your own\n• Colors, style, size, occasion, where it will be displayed...\n\nThe more detail, the better — there are no wrong answers!"}
+                        required
+                      />
+                      <ValidationError field="arrangement_description" errors={customForm.errors} className="field-error" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="custom-budget">Budget (optional)</label>
+                      <input id="custom-budget" name="budget" className="form-input" placeholder="e.g. $50–$100, or no preference" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="custom-phone">Phone (optional)</label>
+                      <input id="custom-phone" name="phone" className="form-input" placeholder="(352) 555-0100" />
+                    </div>
+                    <ValidationError errors={customForm.errors} className="field-error" />
+                    <button type="submit" className="submit-btn" disabled={customForm.submitting}>
+                      {customForm.submitting ? "Sending…" : "✦ Send My Vision to Carl"}
+                    </button>
+                    <p className="custom-request-note">🌸 Carl will reply within 24 hours with a personal quote. No commitment required.</p>
+                  </form>
+                </>
+              )}
+            </div>
+          )}
+
+        </div>
+      </section>
+
+      {/* ── GENDER REVEAL ── */}
+      <section id="gender-reveal" className="section section--white">
+        <div className="section-header">
+          <p className="eyebrow">✦ Celebrate New Life</p>
+          <h2 className="section-title">Gender Reveal <em>Arrangements</em></h2>
+          <p className="section-sub">A beautiful handcrafted floral arrangement to celebrate your little one. Carl will create a custom blue or pink design — just for you.</p>
+        </div>
+        <div className="gender-reveal-inner">
+
+          {/* Gender choice cards */}
+          <div className="gender-cards">
+            <div
+              className={`gender-card gender-card--boy ${genderChoice === "boy" ? "selected" : ""}`}
+              onClick={() => setGenderChoice("boy")}
+            >
+              <div className="gender-card-icon">👶💙</div>
+              <h3 className="gender-card-title">It's a Boy!</h3>
+              <p className="gender-card-desc">A stunning arrangement of blue & white artificial florals — roses, delphiniums, hydrangeas, and lush greenery — handcrafted by Carl to celebrate your baby boy.</p>
+              {genderChoice === "boy" && <div className="gender-selected-badge">✓ Selected</div>}
+            </div>
+            <div
+              className={`gender-card gender-card--girl ${genderChoice === "girl" ? "selected" : ""}`}
+              onClick={() => setGenderChoice("girl")}
+            >
+              <div className="gender-card-icon">👶🩷</div>
+              <h3 className="gender-card-title">It's a Girl!</h3>
+              <p className="gender-card-desc">A gorgeous arrangement of blush pink & soft cream artificial florals — peonies, roses, ranunculus, and delicate fillers — handcrafted by Carl to celebrate your baby girl.</p>
+              {genderChoice === "girl" && <div className="gender-selected-badge">✓ Selected</div>}
+            </div>
+          </div>
+
+          {/* Request form — shown after a choice is made */}
+          {genderChoice && (
+            <div className="gender-form-wrap">
+              {genderForm.succeeded ? (
+                <div className="success-msg">
+                  <div className="success-icon">{genderChoice === "boy" ? "💙" : "🩷"}</div>
+                  <h3>Request Received!</h3>
+                  <p>Carl will review your details and send you a personal quote within 24 hours. Congratulations!</p>
+                </div>
+              ) : (
+                <>
+                  <div className="gender-form-header">
+                    <h3>Customize Your <em>{genderChoice === "boy" ? "Boy" : "Girl"}</em> Arrangement</h3>
+                    <p>Tell Carl the details and he'll send you a custom quote.</p>
+                  </div>
+                  <form onSubmit={handleGenderSubmit} className="booking-form">
+                    <input type="hidden" name="request_type" value="Gender Reveal Arrangement" />
+                    <input type="hidden" name="gender_choice" value={genderChoice === "boy" ? "Boy (Blue)" : "Girl (Pink)"} />
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="gr-name">Your Name</label>
+                        <input id="gr-name" name="name" className="form-input" placeholder="Jane Smith" required />
+                        <ValidationError field="name" errors={genderForm.errors} className="field-error" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="gr-email">Email</label>
+                        <input id="gr-email" name="email" type="email" className="form-input" placeholder="jane@email.com" required />
+                        <ValidationError field="email" errors={genderForm.errors} className="field-error" />
+                      </div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="gr-phone">Phone (optional)</label>
+                        <input id="gr-phone" name="phone" className="form-input" placeholder="(352) 555-0100" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="gr-date">Needed By (optional)</label>
+                        <input id="gr-date" name="needed_by" type="date" className="form-input" />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Vase / Container Style</label>
+                      <div className="gender-vase-grid">
+                        {VASE_OPTIONS.map((v) => (
+                          <label key={v.id} className="gender-vase-option">
+                            <input type="radio" name="vase_choice" value={`${v.name} — ${v.sub}`} required />
+                            <div className="gender-vase-card">
+                              <span className="option-emoji">{v.emoji}</span>
+                              <div className="option-name">{v.name}</div>
+                              <div className="option-sub">{v.sub}</div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="gr-size">Arrangement Size</label>
+                      <div className="occasion-chips">
+                        {["Small (tabletop)", "Medium (centerpiece)", "Large (statement piece)", "Extra Large"].map((s) => (
+                          <label key={s} className="chip-radio">
+                            <input type="radio" name="size" value={s} required style={{display:"none"}} />
+                            <span className="chip">{s}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="gr-notes">Additional Details (optional)</label>
+                      <textarea
+                        id="gr-notes"
+                        name="additional_details"
+                        className="form-textarea"
+                        placeholder="Any specific flowers, color shades, style preferences, where it will be displayed, budget range, or anything else Carl should know..."
+                      />
+                      <ValidationError field="additional_details" errors={genderForm.errors} className="field-error" />
+                    </div>
+                    <ValidationError errors={genderForm.errors} className="field-error" />
+                    <button type="submit" className="submit-btn gender-submit" disabled={genderForm.submitting}
+                      style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"}}>
+                      {genderForm.submitting ? "Sending…" : `✦ Request My ${genderChoice === "boy" ? "💙 Boy" : "🩷 Girl"} Arrangement Quote`}
+                    </button>
+                    <p className="custom-request-note">🌸 Carl will reply within 24 hours with a personal quote. No commitment required.</p>
+                  </form>
+                </>
+              )}
             </div>
           )}
         </div>
