@@ -67,20 +67,20 @@ const SUBSTRATE_OPTIONS = [
 ];
 
 const FLOWER_COLORS = {
-  rose:      ["Red", "White", "Yellow", "Pink", "Purple", "Orange", "Coral", "Lavender"],
-  peony:     ["White", "Blush Pink", "Hot Pink", "Coral", "Red", "Burgundy"],
-  lily:      ["White", "Pink", "Yellow", "Purple", "Orange", "Red"],
-  tulip:     ["Red", "Yellow", "White", "Pink", "Purple", "Orange", "Black"],
-  sunflower: ["Classic Yellow", "Autumn Orange", "Cream White", "Deep Red", "Lemon Yellow"],
-  orchid:    ["White", "Purple", "Pink", "Yellow", "Blue", "Magenta"],
-  babysbreath: ["White", "Pink", "Lavender", "Yellow"],
-  lavender:  ["Classic Purple", "Deep Violet", "Pale Lilac", "White"],
-  wildflower:["Mixed Rainbow", "Warm Tones", "Cool Tones", "Pastel Mix", "White & Cream"],
-  statice:   ["Purple", "White", "Pink", "Lavender", "Yellow", "Blue"],
-  eucalyptus:["Silver Green", "Deep Green", "Blue-Green"],
-  fern:      ["Bright Green", "Deep Forest Green"],
-  ivy:       ["Classic Green", "Variegated Green & White"],
-  succulent: ["Green Mix", "Purple-Tipped", "Blue-Green", "Red-Tipped"],
+  rose:        ["Classic Red", "Pure White", "Sunny Yellow", "Soft Pink", "Deep Purple", "Burnt Orange", "Coral Peach", "Lavender", "Champagne Cream", "Dusty Rose", "Midnight Blue", "Sage Green", "Burgundy", "Hot Pink", "Ombre Blush"],
+  peony:       ["Pure White", "Blush Pink", "Hot Pink", "Coral", "Classic Red", "Burgundy", "Lavender", "Champagne", "Dusty Mauve", "Cotton Candy", "Peachy Cream", "Magenta", "Soft Lilac", "Rose Gold", "Ivory"],
+  lily:        ["Pure White", "Soft Pink", "Sunny Yellow", "Deep Purple", "Burnt Orange", "Classic Red", "Peach", "Lavender", "Champagne", "Coral", "Blush", "Magenta", "Cream", "Dusty Rose", "Sky Blue"],
+  tulip:       ["Classic Red", "Sunshine Yellow", "Pure White", "Bubblegum Pink", "Deep Purple", "Burnt Orange", "Midnight Black", "Coral", "Lavender", "Peach", "Burgundy", "Hot Pink", "Cream", "Teal", "Ombre Pink"],
+  sunflower:   ["Classic Yellow", "Autumn Orange", "Cream White", "Deep Red", "Lemon Yellow", "Burnt Sienna", "Golden Honey", "Pale Butter", "Rustic Brown", "Sunset Peach", "Terracotta", "Champagne Gold", "Dusty Yellow", "Coral Blaze", "Copper"],
+  orchid:      ["Pure White", "Deep Purple", "Blush Pink", "Sunshine Yellow", "Midnight Blue", "Magenta", "Lavender", "Coral", "Champagne", "Hot Pink", "Burgundy", "Soft Peach", "Teal", "Ivory", "Dusty Rose"],
+  babysbreath: ["Pure White", "Blush Pink", "Soft Lavender", "Lemon Yellow", "Coral", "Sky Blue", "Mint Green", "Peach", "Lilac", "Hot Pink", "Champagne", "Dusty Rose", "Teal", "Ivory", "Sunset Orange"],
+  lavender:    ["Classic Purple", "Deep Violet", "Pale Lilac", "Pure White", "Dusty Pink", "Midnight Blue", "Soft Sage", "Lavender Blush", "Periwinkle", "Mauve", "Plum", "Steel Blue", "Rose Taupe", "Champagne", "Ombre Violet"],
+  wildflower:  ["Mixed Rainbow", "Warm Sunset Tones", "Cool Ocean Tones", "Pastel Dreamscape", "White & Cream", "Meadow Greens", "Berry Mix", "Desert Blooms", "Spring Garden", "Moody Darks", "Boho Neutrals", "Tropical Brights", "Lavender Fields", "Golden Hour", "Rustic Harvest"],
+  statice:     ["Classic Purple", "Pure White", "Bubblegum Pink", "Soft Lavender", "Lemon Yellow", "Sky Blue", "Coral", "Dusty Rose", "Magenta", "Champagne", "Teal", "Ivory", "Plum", "Peach", "Mint"],
+  eucalyptus:  ["Silver Green", "Deep Forest Green", "Blue-Green", "Sage", "Olive", "Mint", "Dusty Green", "Emerald", "Sea Glass Green", "Pale Celadon"],
+  fern:        ["Bright Spring Green", "Deep Forest Green", "Olive", "Sage", "Mint", "Emerald", "Dusty Fern", "Yellow-Green"],
+  ivy:         ["Classic Green", "Variegated Green & White", "Deep Hunter Green", "Sage", "Olive", "Lime", "Dusty Green", "Emerald"],
+  succulent:   ["Green Mix", "Purple-Tipped", "Blue-Green", "Red-Tipped", "Dusty Rose", "Silver", "Sage", "Burgundy Edges", "Teal", "Pale Mint"],
 };
 
 const OCCASIONS = ["Birthday", "Anniversary", "Wedding", "Home Décor", "Business / Office", "Sympathy", "Just Because", "Holiday"];
@@ -378,13 +378,13 @@ export default function App() {
                 {/* Color dropdown for focal, filler, greenery steps */}
                 {getColorKey(BUILDER_KEYS[builderStep]) && builderSel[BUILDER_KEYS[builderStep]] && (
                   <div className="color-picker-wrap">
-                    <label className="color-picker-label">🎨 Choose a color for your {BUILDER_STEPS[builderStep].toLowerCase()}:</label>
+                    <label className="color-picker-label">Breathe life into it — choose your color ✦</label>
                     <select
                       className="color-picker-select"
                       value={builderColors[BUILDER_KEYS[builderStep]]}
                       onChange={(e) => setBuilderColors((c) => ({ ...c, [BUILDER_KEYS[builderStep]]: e.target.value }))}
                     >
-                      <option value="">— Select a color (optional) —</option>
+                      <option value="">✦ Pick a shade that speaks to you...</option>
                       {getColorsForStep(BUILDER_KEYS[builderStep], builderSel[BUILDER_KEYS[builderStep]]).map((c) => (
                         <option key={c} value={c}>{c}</option>
                       ))}
@@ -396,29 +396,29 @@ export default function App() {
                 <div className="builder-nav">
                   <button className="btn-outline" onClick={() => setBuilderStep((s) => Math.max(0, s - 1))} disabled={builderStep === 0}>← Back</button>
                   <button className="btn-skip" onClick={() => { setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: "__skip__" })); setBuilderStep((s) => s + 1); }}>
-                    Skip →
+                    not for me ✦
                   </button>
                   <button className="btn-primary" onClick={() => setBuilderStep((s) => s + 1)}>
-                    {builderStep === 5 ? "Almost Done →" : "Next →"}
+                    {builderStep === 5 ? "Almost There ✦" : "I love it, next →"}
                   </button>
                 </div>
               </>
             ) : builderStep === 6 ? (
               <>
-                <h3 className="builder-prompt">✍ Any special requests or details?</h3>
+                <h3 className="builder-prompt builder-prompt--notes">Anything else on your heart?</h3>
                 <div className="builder-notes-wrap">
                   <textarea
                     className="form-textarea builder-notes-textarea"
-                    placeholder="Tell Carl anything extra — ribbon color, occasion, specific placement of flowers, a personal message to include, fragrance preferences, packaging requests, or anything else on your mind. The more detail, the better!"
+                    placeholder="This is your moment to dream freely... ✦  Tell Carl about any colors you adore or want to avoid  ✦  A special occasion or person this is for  ✦  Where it will live — a mantle, a dining table, a bedroom?  ✦  A feeling or mood you want it to evoke  ✦  Anything at all — Carl reads every word personally and pours it all into your arrangement ✦"
                     value={builderNotes}
                     onChange={(e) => setBuilderNotes(e.target.value)}
                   />
-                  <p className="builder-notes-hint">This step is optional — click Skip to go straight to your summary.</p>
+                  <p className="builder-notes-hint"><em>This step is purely optional — but the more you share, the more Carl can make it feel like it was made just for you ✦</em></p>
                 </div>
                 <div className="builder-nav">
                   <button className="btn-outline" onClick={() => setBuilderStep(5)}>← Back</button>
-                  <button className="btn-skip" onClick={() => setBuilderStep(7)}>Skip →</button>
-                  <button className="btn-primary" onClick={() => setBuilderStep(7)}>Review My Arrangement →</button>
+                  <button className="btn-skip" onClick={() => setBuilderStep(7)}>skip for now ✦</button>
+                  <button className="btn-primary" onClick={() => setBuilderStep(7)}>Show me my arrangement ✦</button>
                 </div>
               </>
             ) : (
@@ -585,7 +585,7 @@ export default function App() {
                       ? "Carl will handcraft a stunning arrangement in cool blues, crisp whites & lush greens — delphiniums, hydrangeas, white roses & eucalyptus — celebrating your baby boy in timeless style."
                       : "Carl will handcraft a breathtaking arrangement in blush pinks, soft creams & delicate whites — peonies, ranunculus, roses & baby's breath — celebrating your baby girl with elegance."
                     }</p>
-                    <p className="gender-visual-cta">✍ Use the form below to describe any extra details, choose your vase, and let Carl know your vision!</p>
+                    <p className="gender-visual-cta">✦ Use the form below to describe any extra details, choose your vase, and let Carl know your vision!</p>
                   </div>
                 </div>
               </div>
