@@ -162,9 +162,13 @@ body {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.5rem; font-weight: 600; color: var(--rose); margin-top: 0.8rem;
 }
-.card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1rem; }
+
+/* Card buttons row (portfolio) */
+.card-btns {
+  display: flex; gap: 0.5rem; margin-top: 1rem;
+}
 .add-to-cart {
-  width: 100%; background: var(--deep); color: white;
+  flex: 1; background: var(--deep); color: white;
   border: none; cursor: pointer; padding: 0.75rem;
   font-family: 'Jost', sans-serif; font-size: 0.75rem;
   font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
@@ -172,13 +176,23 @@ body {
 }
 .add-to-cart:hover { background: var(--rose); }
 .buy-now {
-  background: var(--cream); color: var(--rose);
-  border: 1.5px solid var(--rose); cursor: pointer; padding: 0.75rem;
-  font-family: 'Jost', sans-serif; font-size: 0.72rem;
-  font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  flex: 1; background: transparent; color: var(--deep);
+  border: 1px solid var(--gold); cursor: pointer; padding: 0.75rem;
+  font-family: 'Jost', sans-serif; font-size: 0.75rem;
+  font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
   transition: all 0.2s; border-radius: 2px;
 }
-.buy-now:hover { background: var(--rose); color: white; }
+.buy-now:hover { background: var(--gold); color: white; }
+
+/* Builder-specific "Add to Cart" — compact, auto width */
+.btn-add-to-cart {
+  background: var(--deep); color: white;
+  border: none; cursor: pointer; padding: 0.9rem 2rem;
+  font-family: 'Jost', sans-serif; font-size: 0.8rem;
+  font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  transition: background 0.2s; border-radius: 2px; white-space: nowrap;
+}
+.btn-add-to-cart:hover { background: var(--rose); }
 
 /* ── CUSTOM BUILDER ── */
 .builder-inner { max-width: 900px; margin: 0 auto; }
@@ -215,7 +229,7 @@ body {
 .option-name  { font-size: 0.82rem; font-weight: 500; color: var(--deep); }
 .option-sub   { font-size: 0.72rem; color: var(--dusty); margin-top: 0.2rem; }
 .option-price { margin-top: 0.4rem; font-size: 0.8rem; color: var(--rose); font-family: 'Cormorant Garamond', serif; font-weight: 600; }
-.builder-nav  { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; }
+.builder-nav  { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-top: 2rem; }
 .builder-summary {
   background: white; border-radius: 4px; padding: 1.5rem;
   margin-bottom: 2rem; box-shadow: 0 2px 20px rgba(46,35,24,0.08);
@@ -235,7 +249,7 @@ body {
 .booking-inner { max-width: 700px; margin: 0 auto; }
 .booking-form  { display: flex; flex-direction: column; gap: 0; }
 .form-group    { margin-bottom: 1.5rem; }
-.form-label {
+.form-label    {
   display: block; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--dusty); margin-bottom: 0.5rem; font-weight: 500;
 }
@@ -264,6 +278,7 @@ body {
   text-transform: uppercase; border-radius: 2px; transition: all 0.2s; margin-top: 1rem;
 }
 .submit-btn:hover { background: var(--dusty); }
+.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .success-msg {
   text-align: center; padding: 3rem;
   background: rgba(122,140,110,0.08); border-radius: 4px;
@@ -299,7 +314,11 @@ body {
 .cart-item-right  { display: flex; align-items: center; }
 .cart-item-price  { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--rose); }
 .cart-remove      { background: none; border: none; cursor: pointer; color: var(--dusty); font-size: 1rem; margin-left: 1rem; }
-.cart-total       { text-align: right; padding: 1rem 0; font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; color: var(--deep); }
+.cart-total {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.4rem;
+  font-weight: 600; color: var(--rose); text-align: right;
+  padding: 1rem 0 0.5rem;
+}
 .stripe-note {
   text-align: center; font-size: 0.72rem; color: var(--dusty);
   margin-top: 0.75rem; line-height: 1.5;
@@ -343,4 +362,7 @@ body {
   .form-row     { grid-template-columns: 1fr; }
   .footer       { padding: 2rem 1.5rem; }
   .hero-badges  { gap: 1rem; }
+  .builder-nav  { flex-wrap: wrap; }
+  .builder-nav .btn-primary,
+  .builder-nav .btn-add-to-cart { flex: 1; }
 }
