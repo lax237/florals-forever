@@ -59,6 +59,9 @@ const SUBSTRATE_OPTIONS = [
   { id: "wood-chips",    emoji: "🪵", name: "Wood Chips / Bark",  sub: "Warm & woodland" },
   { id: "lichen",        emoji: "🌱", name: "Preserved Lichen",   sub: "Botanical & unique" },
   { id: "sea-glass",     emoji: "💚", name: "Sea Glass",          sub: "Coastal & elegant" },
+  { id: "lava-rocks",   emoji: "🌋", name: "Lava Rocks",         sub: "Volcanic & dramatic" },
+  { id: "wood-wall",    emoji: "🪵", name: "Wood Wall",           sub: "Textured & rustic" },
+  { id: "dec-gems",     emoji: "💎", name: "Decorative Gemstones", sub: "Glamorous & sparkling" },
   { id: "no-pref",       emoji: "✨", name: "No Preference",      sub: "Carl will choose" },
 ];
 
@@ -126,7 +129,7 @@ export default function App() {
 
   const builderPrice = BUILDER_KEYS.reduce((s, k, i) => {
     const found = BUILDER_DATA[i].find((o) => o.id === builderSel[k]);
-    return s + (found ? found.price : 0);
+    return s + (found && found.price !== undefined ? found.price : 0);
   }, 35);
 
   const addCustomToCart = () => {
@@ -154,7 +157,9 @@ export default function App() {
       { name: "Custom Arrangement — Base & Labour", price: 35 },
       ...BUILDER_KEYS.map((k, i) => {
         const sel = BUILDER_DATA[i].find((o) => o.id === builderSel[k]);
-        return sel ? { name: `${BUILDER_STEPS[i]}: ${sel.name}`, price: sel.price } : null;
+        if (!sel) return null;
+        // Substrate has no fixed price — include as a $0 note line item
+        return { name: `${BUILDER_STEPS[i]}: ${sel.name}${sel.price === undefined ? " (priced by weight)" : ""}`, price: sel.price !== undefined ? sel.price : 0 };
       }).filter(Boolean),
     ];
     try {
@@ -298,7 +303,7 @@ export default function App() {
                 <h3 className="builder-prompt">Choose your {BUILDER_STEPS[builderStep]}</h3>
                 <div className={`options-grid ${
                   BUILDER_DATA[builderStep].length === 4 ? "options-grid--2col" :
-                  BUILDER_DATA[builderStep].length === 12 ? "options-grid--4col" : ""
+                  BUILDER_DATA[builderStep].length > 8 ? "options-grid--4col" : ""
                 }`}>
                   {BUILDER_DATA[builderStep].map((opt) => (
                     <div key={opt.id} className={`option-card ${builderSel[BUILDER_KEYS[builderStep]] === opt.id ? "selected" : ""}`}
