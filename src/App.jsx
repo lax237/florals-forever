@@ -5,7 +5,7 @@ import "./App.css";
 const ARRANGEMENTS = [
   { id: 1, emoji: "🌸", name: "Blushing Garden",   desc: "Soft roses, baby's breath & eucalyptus in a vintage mason jar. Perfect for gifting.", price: 62,  tags: ["Gift", "Home Décor"],    stripeLink: "https://buy.stripe.com/bJe8wP6uk3nR5TS9FL9sk0q" },
   { id: 2, emoji: "🌺", name: "Coral Sunrise",      desc: "Bold focal blooms with lush greenery in a modern matte vase. A statement piece.",    price: 88,  tags: ["Home Décor", "Offices"], stripeLink: "https://buy.stripe.com/7sYeVdaKAe2v6XW6tz9sk0r" },
-  { id: 3, emoji: "💐", name: "Bridal Bouquet",     desc: "Classic whites and creams with cascading silk ribbon — yours forever.",               price: 116, tags: ["Weddings", "Gift"],      stripeLink: "https://buy.stripe.com/bJe4gz2e46A3bec5pv9sk0s" },
+  { id: 3, emoji: "🤍", name: "Bridal Bouquet",     desc: "Classic whites and creams with cascading silk ribbon — yours forever.",               price: 116, tags: ["Weddings", "Gift"],      stripeLink: "https://buy.stripe.com/bJe4gz2e46A3bec5pv9sk0s" },
   { id: 4, emoji: "🌿", name: "Woodland Serenity",  desc: "Artisan greenery, dried botanicals, and fillers for a rustic, earthy look.",          price: 70,  tags: ["Home Décor", "Offices"], stripeLink: "https://buy.stripe.com/eVqbJ12e46A32HGg499sk0t" },
   { id: 5, emoji: "🌷", name: "Sweetheart Tulips",  desc: "Vibrant tulips in a terracotta pot. Timeless anniversary or birthday gift.",          price: 52,  tags: ["Gift", "Anniversary"],   stripeLink: "https://buy.stripe.com/fZu14n8Cs5vZ6XWaJP9sk0u" },
   { id: 6, emoji: "🌻", name: "Golden Hour",        desc: "Sunflowers, wildflowers, and golden accents that bring joy to any room.",             price: 74,  tags: ["Home Décor", "Gift"],    stripeLink: "https://buy.stripe.com/5kQcN5cSI7E7dmk05b9sk0v" },
@@ -39,7 +39,7 @@ const VASE_OPTIONS = [
 ];
 
 const BRIDAL_ARRANGEMENTS = [
-  { id: "b1", emoji: "💐", name: "Classic White Elegance",  desc: "All-white roses, peonies & cascading baby's breath in a clear glass vase. Timeless bridal beauty.", price: 145, tags: ["Bridal", "Bouquet"] },
+  { id: "b1", emoji: "🌼", name: "Classic White Elegance",  desc: "All-white roses, peonies & cascading baby's breath in a clear glass vase. Timeless bridal beauty.", price: 145, tags: ["Bridal", "Bouquet"] },
   { id: "b2", emoji: "🌸", name: "Blush Romance",           desc: "Soft blush peonies, ivory roses & dusty miller in a ceramic vase. Romantic and feminine.", price: 135, tags: ["Bridal", "Centerpiece"] },
   { id: "b3", emoji: "🌿", name: "Garden Bohemian",         desc: "Wildflowers, eucalyptus & trailing ivy with pops of lavender. Perfect for outdoor & boho weddings.", price: 125, tags: ["Bridal", "Boho"] },
   { id: "b4", emoji: "🌹", name: "Red Carpet Rose",         desc: "Deep red roses with lush greenery & gold accents in a matte ceramic vase. Bold & dramatic.", price: 155, tags: ["Bridal", "Statement"] },
@@ -48,16 +48,25 @@ const BRIDAL_ARRANGEMENTS = [
 ];
 
 const SUBSTRATE_OPTIONS = [
-  "River Stones", "Decorative Rocks", "Glass Marbles", "Peat Moss",
-  "Colored Sand", "Aquarium Gravel", "Dried Moss", "Decorative Pebbles",
-  "Wood Chips / Bark", "Preserved Lichen", "Sea Glass", "No Preference",
+  { id: "river-stones",  emoji: "🪨", name: "River Stones",      sub: "Smooth & natural" },
+  { id: "dec-rocks",     emoji: "🪨", name: "Decorative Rocks",   sub: "Polished & earthy" },
+  { id: "marbles",       emoji: "🔵", name: "Glass Marbles",      sub: "Colorful & playful" },
+  { id: "peat-moss",     emoji: "🌿", name: "Peat Moss",          sub: "Organic & lush" },
+  { id: "colored-sand",  emoji: "🏖️", name: "Colored Sand",       sub: "Soft & decorative" },
+  { id: "aqua-gravel",   emoji: "🫧", name: "Aquarium Gravel",    sub: "Clean & refined" },
+  { id: "dried-moss",    emoji: "🍃", name: "Dried Moss",         sub: "Rustic & textured" },
+  { id: "dec-pebbles",   emoji: "⚪", name: "Decorative Pebbles", sub: "Classic & versatile" },
+  { id: "wood-chips",    emoji: "🪵", name: "Wood Chips / Bark",  sub: "Warm & woodland" },
+  { id: "lichen",        emoji: "🌱", name: "Preserved Lichen",   sub: "Botanical & unique" },
+  { id: "sea-glass",     emoji: "💚", name: "Sea Glass",          sub: "Coastal & elegant" },
+  { id: "no-pref",       emoji: "✨", name: "No Preference",      sub: "Carl will choose" },
 ];
 
 const OCCASIONS = ["Birthday", "Anniversary", "Wedding", "Home Décor", "Business / Office", "Sympathy", "Just Because", "Holiday"];
 
-const BUILDER_STEPS = ["Focal Flower", "Filler", "Greenery", "Vase"];
-const BUILDER_DATA  = [FOCAL_OPTIONS, FILLER_OPTIONS, GREENERY_OPTIONS, VASE_OPTIONS];
-const BUILDER_KEYS  = ["focal", "filler", "greenery", "vase"];
+const BUILDER_STEPS = ["Focal Flower", "Filler", "Greenery", "Substrate", "Vase"];
+const BUILDER_DATA  = [FOCAL_OPTIONS, FILLER_OPTIONS, GREENERY_OPTIONS, SUBSTRATE_OPTIONS, VASE_OPTIONS];
+const BUILDER_KEYS  = ["focal", "filler", "greenery", "substrate", "vase"];
 
 export default function App() {
   const [cart, setCart]                       = useState([]);
@@ -66,7 +75,7 @@ export default function App() {
   const [toast, setToast]                     = useState(null);
   const [builderMode, setBuilderMode]         = useState("guided"); // "guided" | "custom"
   const [builderStep, setBuilderStep]         = useState(0);
-  const [builderSel, setBuilderSel]           = useState({ focal: null, filler: null, greenery: null, vase: null });
+  const [builderSel, setBuilderSel]           = useState({ focal: null, filler: null, greenery: null, substrate: null, vase: null });
   const [bookingOccasion, setBookingOccasion] = useState([]);
 
   const showToast = (msg) => {
@@ -134,7 +143,7 @@ export default function App() {
     setCart((c) => [...c, customItem]);
     showToast(`✿ Custom arrangement added to your cart`);
     setBuilderStep(0);
-    setBuilderSel({ focal: null, filler: null, greenery: null, vase: null });
+    setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null });
   };
 
   // ── FIXED: sends all selected components to /api/checkout instead of
@@ -162,7 +171,7 @@ export default function App() {
         const top  = (window.screen.height - h) / 2;
         window.open(data.url, "_blank", `width=${Math.round(w)},height=${Math.round(h)},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`);
         setBuilderStep(0);
-        setBuilderSel({ focal: null, filler: null, greenery: null, vase: null });
+        setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null });
       } else {
         alert(data.error || "Could not start checkout. Please try again.");
         setCheckingOut(false);
@@ -287,14 +296,19 @@ export default function App() {
             {builderStep < 4 ? (
               <>
                 <h3 className="builder-prompt">Choose your {BUILDER_STEPS[builderStep]}</h3>
-                <div className={`options-grid ${BUILDER_DATA[builderStep].length === 4 ? "options-grid--2col" : ""}`}>
+                <div className={`options-grid ${
+                  BUILDER_DATA[builderStep].length === 4 ? "options-grid--2col" :
+                  BUILDER_DATA[builderStep].length === 12 ? "options-grid--4col" : ""
+                }`}>
                   {BUILDER_DATA[builderStep].map((opt) => (
                     <div key={opt.id} className={`option-card ${builderSel[BUILDER_KEYS[builderStep]] === opt.id ? "selected" : ""}`}
                       onClick={() => setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: opt.id }))}>
                       <span className="option-emoji">{opt.emoji}</span>
                       <div className="option-name">{opt.name}</div>
                       <div className="option-sub">{opt.sub}</div>
-                      <div className="option-price">+${opt.price}</div>
+                      <div className="option-price">
+                      {opt.price !== undefined ? `+$${opt.price}` : <span className="option-price-tbd">+ To be determined by weight</span>}
+                    </div>
                     </div>
                   ))}
                 </div>
@@ -314,7 +328,7 @@ export default function App() {
                     return sel ? (
                       <div key={k} className="summary-row">
                         <span>{BUILDER_STEPS[i]}</span>
-                        <span>{sel.emoji} {sel.name} (+${sel.price})</span>
+                        <span>{sel.emoji} {sel.name} {sel.price !== undefined ? `(+$${sel.price})` : <em className="tbd-tag">(+ TBD by weight)</em>}</span>
                       </div>
                     ) : null;
                   })}
@@ -712,14 +726,15 @@ export default function App() {
                 {formState.submitting ? "Sending…" : "✦ Send Consultation Request"}
               </button>
               <div className="shipping-disclaimer">
-                <h4 className="disclaimer-title">📦 Shipping & Care Information</h4>
-                <p>Please be aware of the following before your arrangement arrives:</p>
+                <h4 className="disclaimer-title">✨ A Little Love Note About Your Arrangement</h4>
+                <p className="shipping-free-note">🚚 <strong>Shipping is always free</strong> — because beautiful things should arrive at your door without any extra cost.</p>
+                <p>Your flowers have traveled to reach you — here's how to help them settle in and truly shine:</p>
                 <ul>
-                  <li><strong>Fluffing required:</strong> Due to shipping, your artificial flowers may arrive slightly compressed. Gently fluff and reshape each bloom and allow <strong>48–72 hours</strong> for the arrangement to naturally fall into its full, intended shape.</li>
-                  <li><strong>Substrate added after shipping:</strong> To protect your arrangement and vessel during transit, vase substrate (rocks, marbles, river stones, etc.) will be shipped separately and will need to be added by you upon arrival. This prevents the weight from shifting and damaging the flowers or breaking the vessel.</li>
-                  <li><strong>Handle with care:</strong> Please open your package carefully and avoid shaking or inverting the box during unpacking.</li>
+                  <li><strong>🌸 Give them a little fluff!</strong> Artificial blooms are adventurous travelers, but they may arrive a touch compressed from their journey. Simply take a moment to gently coax each petal and stem back to life — think of it as a welcome-home hug for your flowers. Allow <strong>48–72 hours</strong> for everything to gracefully fall into its full, breathtaking shape.</li>
+                  <li><strong>💎 Your substrate arrives separately — by design!</strong> To keep your vessel safe and your blooms pristine during shipping, the vase filling (rocks, marbles, river stones, peat moss, etc.) is packed separately and added by you upon arrival. This little extra step protects your arrangement from shifting weight and ensures nothing gets damaged in transit. Think of it as the final, personal touch that makes it truly yours.</li>
+                  <li><strong>📦 Unbox with intention!</strong> Open your package slowly and lovingly — avoid shaking or flipping the box. Your arrangement was packed with care and deserves a gentle, graceful grand entrance.</li>
                 </ul>
-                <p className="disclaimer-footer">If you have any questions about setup or care, Carl is happy to help — just reach out!</p>
+                <p className="disclaimer-footer">✿ Questions about setup, care, or anything at all? Carl personally replies to every message — don't hesitate to reach out!</p>
               </div>
             </form>
           )}
