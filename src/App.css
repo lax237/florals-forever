@@ -219,8 +219,11 @@ body {
   font-size: 1.4rem; margin-bottom: 1.5rem; color: var(--deep);
 }
 .options-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  display: grid; grid-template-columns: repeat(3, 1fr);
   gap: 1rem; margin-bottom: 2rem;
+}
+.options-grid--2col {
+  grid-template-columns: repeat(2, 1fr);
 }
 .option-card {
   background: white; border: 2px solid transparent; border-radius: 4px;
