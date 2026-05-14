@@ -47,6 +47,21 @@ body {
   color: var(--dusty); transition: color 0.2s;
 }
 .nav-links button:hover { color: var(--rose); }
+.nav-disclaimer {
+  background: linear-gradient(135deg, var(--light-gold), rgba(196,162,101,0.2));
+  color: var(--dusty); border: 1px solid rgba(196,162,101,0.4);
+  cursor: pointer; padding: 0.35rem 0.85rem;
+  font-family: 'Jost', sans-serif; font-size: 0.68rem;
+  font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  border-radius: 22px; transition: all 0.2s; white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(196,162,101,0.15);
+}
+.nav-disclaimer:hover {
+  background: var(--gold); color: white;
+  border-color: var(--gold);
+  box-shadow: 0 4px 12px rgba(196,162,101,0.3);
+  transform: translateY(-1px);
+}
 .nav-cart {
   background: var(--rose); color: white; border: none; cursor: pointer;
   padding: 0.5rem 1.2rem; font-family: 'Jost', sans-serif;
