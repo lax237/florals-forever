@@ -1,735 +1,1016 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
+import { useState } from "react";
+import { useForm, ValidationError } from "@formspree/react";
+import "./App.css";
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+const ARRANGEMENTS = [
+  { id: 1, emoji: "🌸", name: "Blushing Garden",   desc: "Soft roses, baby's breath & eucalyptus in a vintage mason jar. Perfect for gifting.", price: 62,  tags: ["Gift", "Home Décor"],    stripeLink: "https://buy.stripe.com/bJe8wP6uk3nR5TS9FL9sk0q" },
+  { id: 2, emoji: "🌺", name: "Coral Sunrise",      desc: "Bold focal blooms with lush greenery in a modern matte vase. A statement piece.",    price: 88,  tags: ["Home Décor", "Offices"], stripeLink: "https://buy.stripe.com/7sYeVdaKAe2v6XW6tz9sk0r" },
+  { id: 3, emoji: "🤍", name: "Bridal Bouquet",     desc: "Classic whites and creams with cascading silk ribbon — yours forever.",               price: 116, tags: ["Weddings", "Gift"],      stripeLink: "https://buy.stripe.com/bJe4gz2e46A3bec5pv9sk0s" },
+  { id: 4, emoji: "🌿", name: "Woodland Serenity",  desc: "Artisan greenery, dried botanicals, and fillers for a rustic, earthy look.",          price: 70,  tags: ["Home Décor", "Offices"], stripeLink: "https://buy.stripe.com/eVqbJ12e46A32HGg499sk0t" },
+  { id: 5, emoji: "🌷", name: "Sweetheart Tulips",  desc: "Vibrant tulips in a terracotta pot. Timeless anniversary or birthday gift.",          price: 52,  tags: ["Gift", "Anniversary"],   stripeLink: "https://buy.stripe.com/fZu14n8Cs5vZ6XWaJP9sk0u" },
+  { id: 6, emoji: "🌻", name: "Golden Hour",        desc: "Sunflowers, wildflowers, and golden accents that bring joy to any room.",             price: 74,  tags: ["Home Décor", "Gift"],    stripeLink: "https://buy.stripe.com/5kQcN5cSI7E7dmk05b9sk0v" },
+];
 
-:root {
-  --cream:      #faf6f0;
-  --blush:      #e8c9b8;
-  --rose:       #c9785a;
-  --dusty:      #a0836e;
-  --sage:       #7a8c6e;
-  --deep:       #2e2318;
-  --moss:       #4e5e42;
-  --gold:       #c4a265;
-  --light-gold: #f5ede0;
-  --white:      #ffffff;
-}
+const FOCAL_OPTIONS = [
+  { id: "rose",      emoji: "🌹", name: "Roses",      sub: "Classic & timeless", price: 16, stripeLink: "https://buy.stripe.com/eVq4gz9Gw8Ibgywf059sk0x" },
+  { id: "peony",     emoji: "🌸", name: "Peonies",    sub: "Full & romantic",    price: 20, stripeLink: "https://buy.stripe.com/eVq3cv7yo4rV6XW05b9sk0y" },
+  { id: "lily",      emoji: "🌺", name: "Lilies",     sub: "Bold & dramatic",    price: 18, stripeLink: "https://buy.stripe.com/3cIbJ13i87E75TSg499sk0z" },
+  { id: "tulip",     emoji: "🌷", name: "Tulips",     sub: "Elegant & simple",   price: 14, stripeLink: "https://buy.stripe.com/5kQ5kD3i86A35TSdW19sk0A" },
+  { id: "sunflower", emoji: "🌻", name: "Sunflowers", sub: "Bright & cheerful",  price: 13, stripeLink: "https://buy.stripe.com/aFa7sL4mc2jN6XW5pv9sk0B" },
+  { id: "orchid",    emoji: "🪷", name: "Orchids",    sub: "Exotic & refined",   price: 22, stripeLink: "https://buy.stripe.com/6oUeVd2e41fJ6XWg499sk0w" },
+];
+const FILLER_OPTIONS = [
+  { id: "babysbreath", emoji: "🤍", name: "Baby's Breath",   sub: "Soft & airy",        price: 6, stripeLink: "https://buy.stripe.com/dRm00j9Gw5vZ6XWdW19sk0e" },
+  { id: "lavender",    emoji: "💜", name: "Lavender Sprigs", sub: "Fragrant feel",       price: 8, stripeLink: "https://buy.stripe.com/5kQfZh4mc4rV4PO9FL9sk0f" },
+  { id: "wildflower",  emoji: "🌼", name: "Wildflowers",     sub: "Garden fresh",        price: 7, stripeLink: "https://buy.stripe.com/5kQ4gzcSI4rVaa8bNT9sk0g" },
+  { id: "statice",     emoji: "🌾", name: "Statice",         sub: "Soft, cloud-like clusters", price: 6, stripeLink: "https://buy.stripe.com/7sYfZhbOE9Mf4PO2dj9sk0h" },
+];
+const GREENERY_OPTIONS = [
+  { id: "eucalyptus", emoji: "🌿", name: "Eucalyptus",   sub: "Fresh & modern",     price: 8,  stripeLink: "https://buy.stripe.com/28E28r8Cs1fJfus6tz9sk0i" },
+  { id: "fern",       emoji: "🍃", name: "Fern Fronds",  sub: "Lush & traditional", price: 6,  stripeLink: "https://buy.stripe.com/eVqbJ16ukbUn2HG19f9sk0j" },
+  { id: "ivy",        emoji: "🌱", name: "Trailing Ivy", sub: "Cascading effect",   price: 7,  stripeLink: "https://buy.stripe.com/4gM3cvf0Q2jNaa83hn9sk0k" },
+  { id: "succulent",  emoji: "🪴", name: "Succulents",   sub: "Sculptural accent",  price: 10, stripeLink: "https://buy.stripe.com/aFa7sL4mce2v6XWcRX9sk0l" },
+];
+const VASE_OPTIONS = [
+  { id: "mason",      emoji: "🫙", name: "Mason Jar",      sub: "Rustic charm",     price: 12, stripeLink: "https://buy.stripe.com/bJebJ14mc2jNcig9FL9sk0m" },
+  { id: "ceramic",    emoji: "🪆", name: "Ceramic Vase",   sub: "Artisan crafted",  price: 20, stripeLink: "https://buy.stripe.com/6oUaEX7yoaQj9644lr9sk0n" },
+  { id: "glass",      emoji: "🍶", name: "Clear Glass",    sub: "Timeless & clean", price: 14, stripeLink: "https://buy.stripe.com/3cI00j4mc8Ib820cRX9sk0o" },
+  { id: "terracotta", emoji: "🏺", name: "Terracotta Pot", sub: "Earthy & warm",    price: 16, stripeLink: "https://buy.stripe.com/5kQ4gz9Gw3nR820bNT9sk0p" },
+];
 
-body {
-  background: var(--cream);
-  color: var(--deep);
-  font-family: 'Jost', sans-serif;
-}
+const BRIDAL_ARRANGEMENTS = [
+  { id: "b1", emoji: "🌼", name: "Classic White Elegance",  desc: "All-white roses, peonies & cascading baby's breath in a clear glass vase. Timeless bridal beauty.", price: 145, tags: ["Bridal", "Bouquet"] },
+  { id: "b2", emoji: "🌸", name: "Blush Romance",           desc: "Soft blush peonies, ivory roses & dusty miller in a ceramic vase. Romantic and feminine.", price: 135, tags: ["Bridal", "Centerpiece"] },
+  { id: "b3", emoji: "🌿", name: "Garden Bohemian",         desc: "Wildflowers, eucalyptus & trailing ivy with pops of lavender. Perfect for outdoor & boho weddings.", price: 125, tags: ["Bridal", "Boho"] },
+  { id: "b4", emoji: "🌹", name: "Red Carpet Rose",         desc: "Deep red roses with lush greenery & gold accents in a matte ceramic vase. Bold & dramatic.", price: 155, tags: ["Bridal", "Statement"] },
+  { id: "b5", emoji: "💛", name: "Golden Meadow",           desc: "Sunflowers, cream roses & golden wheat in a terracotta pot. Rustic elegance for country weddings.", price: 120, tags: ["Bridal", "Rustic"] },
+  { id: "b6", emoji: "🪷", name: "Orchid Luxe",             desc: "Exotic orchids, white lilies & sculptural succulents in a tall glass vase. Luxury at its finest.", price: 175, tags: ["Bridal", "Luxury"] },
+];
 
-/* ── NAV ── */
-.nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  background: rgba(250,246,240,0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(196,162,101,0.2);
-  padding: 0 2rem; height: 70px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.nav-right {
-  display: flex; align-items: center; gap: 1.5rem;
-  margin-left: auto;
-}
-.nav-logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.6rem; font-weight: 300; letter-spacing: 0.08em; color: var(--deep);
-}
-.nav-logo em { font-style: italic; color: var(--rose); }
-.nav-links { display: flex; gap: 1.5rem; list-style: none; margin: 0; }
-.nav-links button {
-  background: none; border: none; cursor: pointer;
-  font-family: 'Jost', sans-serif; font-size: 0.8rem;
-  font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--dusty); transition: color 0.2s;
-}
-.nav-links button:hover { color: var(--rose); }
-.nav-disclaimer {
-  background: linear-gradient(135deg, var(--light-gold), rgba(196,162,101,0.2));
-  color: var(--dusty); border: 1px solid rgba(196,162,101,0.4);
-  cursor: pointer; padding: 0.35rem 0.85rem;
-  font-family: 'Jost', sans-serif; font-size: 0.68rem;
-  font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
-  border-radius: 22px; transition: all 0.2s; white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(196,162,101,0.15);
-}
-.nav-disclaimer:hover {
-  background: var(--gold); color: white;
-  border-color: var(--gold);
-  box-shadow: 0 4px 12px rgba(196,162,101,0.3);
-  transform: translateY(-1px);
-}
-.nav-cart {
-  background: var(--rose); color: white; border: none; cursor: pointer;
-  padding: 0.5rem 1.2rem; font-family: 'Jost', sans-serif;
-  font-size: 0.75rem; font-weight: 500; letter-spacing: 0.1em;
-  text-transform: uppercase; border-radius: 5px; transition: background 0.2s;
-}
-.nav-cart:hover { background: var(--dusty); }
+const SUBSTRATE_OPTIONS = [
+  { id: "river-stones",  emoji: "🪨", name: "River Stones",      sub: "Smooth & natural" },
+  { id: "dec-rocks",     emoji: "🪨", name: "Decorative Rocks",   sub: "Polished & earthy" },
+  { id: "marbles",       emoji: "🔵", name: "Glass Marbles",      sub: "Colorful & playful" },
+  { id: "peat-moss",     emoji: "🌿", name: "Peat Moss",          sub: "Organic & lush" },
+  { id: "colored-sand",  emoji: "🏖️", name: "Colored Sand",       sub: "Soft & decorative" },
+  { id: "aqua-gravel",   emoji: "🫧", name: "Aquarium Gravel",    sub: "Clean & refined" },
+  { id: "dried-moss",    emoji: "🍃", name: "Dried Moss",         sub: "Rustic & textured" },
+  { id: "moss",          emoji: "🌿", name: "Moss",               sub: "Fresh & velvety" },
+  { id: "dec-pebbles",   emoji: "⚪", name: "Decorative Pebbles", sub: "Classic & versatile" },
+  { id: "wood-chips",    emoji: "🪵", name: "Wood Chips / Bark",  sub: "Warm & woodland" },
+  { id: "lichen",        emoji: "🌱", name: "Preserved Lichen",   sub: "Botanical & unique" },
+  { id: "sea-glass",     emoji: "💚", name: "Sea Glass",          sub: "Coastal & elegant" },
+  { id: "lava-rocks",   emoji: "🌋", name: "Lava Rocks",         sub: "Volcanic & dramatic" },
+  { id: "wood-wool",    emoji: "🪵", name: "Wood Wool",           sub: "Soft & textured" },
+  { id: "dec-gems",     emoji: "💎", name: "Decorative Gemstones", sub: "Glamorous & sparkling" },
+  { id: "no-pref",       emoji: "✨", name: "No Preference",      sub: "Carl will choose" },
+];
 
-/* ── HERO ── */
-.hero {
-  min-height: 100vh; display: flex; align-items: center;
-  background: linear-gradient(135deg, #faf6f0 0%, #f3e8de 50%, #ecddd3 100%);
-  position: relative; overflow: hidden; padding-top: 70px;
-}
-.hero::before {
-  content: ''; position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 60% 50% at 70% 50%, rgba(201,120,90,0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 60% at 20% 80%, rgba(122,140,110,0.07) 0%, transparent 60%);
-  pointer-events: none;
-}
-.hero-content {
-  position: relative; z-index: 2;
-  max-width: 680px; padding: 4rem 3rem 4rem 6rem;
-}
-.eyebrow {
-  font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 1.2rem; font-weight: 500;
-}
-.hero-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(3rem, 6vw, 5rem);
-  font-weight: 300; line-height: 1.1; color: var(--deep); margin-bottom: 1.5rem;
-}
-.hero-title em { font-style: italic; color: var(--rose); }
-.hero-sub {
-  font-size: 1rem; line-height: 1.8; color: var(--dusty);
-  font-weight: 300; max-width: 480px; margin-bottom: 2.5rem;
-}
-.hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
-.hero-floral {
-  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-  font-size: 18rem; line-height: 1; opacity: 0.07;
-  user-select: none; color: var(--moss); pointer-events: none;
-}
-.hero-badges {
-  display: flex; gap: 2rem; margin-top: 3rem;
-  border-top: 1px solid rgba(196,162,101,0.2); padding-top: 2rem;
-}
-.badge { text-align: center; }
-.badge-num {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2rem; font-weight: 600; color: var(--rose); display: block;
-}
-.badge-lbl { font-size: 0.7rem; letter-spacing: 0.1em; color: var(--dusty); text-transform: uppercase; }
-
-/* ── BUTTONS ── */
-.btn-primary {
-  background: var(--rose); color: white; border: none; cursor: pointer;
-  padding: 0.9rem 2.2rem; font-family: 'Jost', sans-serif;
-  font-size: 0.8rem; font-weight: 500; letter-spacing: 0.12em;
-  text-transform: uppercase; border-radius: 5px; transition: all 0.2s;
-}
-.btn-primary:hover:not(:disabled) { background: var(--dusty); transform: translateY(-1px); }
-.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-outline {
-  background: transparent; color: var(--deep);
-  border: 1px solid var(--gold); cursor: pointer;
-  padding: 0.9rem 2.2rem; font-family: 'Jost', sans-serif;
-  font-size: 0.8rem; font-weight: 500; letter-spacing: 0.12em;
-  text-transform: uppercase; border-radius: 5px; transition: all 0.2s;
-}
-.btn-outline:hover:not(:disabled) { background: var(--gold); color: white; }
-.btn-outline:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* ── SECTIONS ── */
-.section { padding: 6rem 4rem; }
-.section--white { background: var(--white); }
-.section--tinted { background: linear-gradient(160deg, #f3ede6, #e8ddd4); }
-.section-header { text-align: center; margin-bottom: 4rem; }
-.section-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; color: var(--deep); line-height: 1.2;
-}
-.section-title em { font-style: italic; color: var(--rose); }
-.section-sub { font-size: 0.9rem; color: var(--dusty); margin-top: 0.8rem; line-height: 1.7; }
-
-/* ── PORTFOLIO ── */
-.portfolio-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem; max-width: 1200px; margin: 0 auto;
-}
-.portfolio-card {
-  border-radius: 7px; overflow: hidden; cursor: default;
-  transition: transform 0.3s, box-shadow 0.3s;
-  background: var(--cream);
-  box-shadow: 0 2px 20px rgba(46,35,24,0.06);
-}
-.portfolio-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(46,35,24,0.12); }
-.portfolio-img {
-  height: 280px; display: flex; align-items: center; justify-content: center;
-  font-size: 6rem; background: linear-gradient(135deg, #f3e8de, #e8d5c8);
-}
-.portfolio-info { padding: 1.5rem; }
-.portfolio-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.4rem; font-weight: 400; color: var(--deep); margin-bottom: 0.4rem;
-}
-.portfolio-desc { font-size: 0.82rem; color: var(--dusty); line-height: 1.6; margin-bottom: 1rem; }
-.portfolio-tags { margin-bottom: 0.4rem; }
-.tag {
-  display: inline-block; background: rgba(122,140,110,0.12); color: var(--moss);
-  font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 0.2rem 0.6rem; border-radius: 5px; margin-right: 0.4rem; margin-bottom: 0.4rem;
-}
-.portfolio-price {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem; font-weight: 600; color: var(--rose); margin-top: 0.8rem;
-}
-
-/* Card buttons row (portfolio) */
-.card-btns {
-  display: flex; gap: 0.5rem; margin-top: 1rem;
-}
-.add-to-cart {
-  flex: 1; background: var(--deep); color: white;
-  border: none; cursor: pointer; padding: 0.75rem;
-  font-family: 'Jost', sans-serif; font-size: 0.75rem;
-  font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
-  transition: background 0.2s; border-radius: 5px;
-}
-.add-to-cart:hover { background: var(--rose); }
-.buy-now {
-  flex: 1; background: transparent; color: var(--deep);
-  border: 1px solid var(--gold); cursor: pointer; padding: 0.75rem;
-  font-family: 'Jost', sans-serif; font-size: 0.75rem;
-  font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
-  transition: all 0.2s; border-radius: 5px;
-}
-.buy-now:hover { background: var(--gold); color: white; }
-
-/* Builder-specific "Add to Cart" — compact, auto width */
-.btn-add-to-cart {
-  background: var(--deep); color: white;
-  border: none; cursor: pointer; padding: 0.9rem 2rem;
-  font-family: 'Jost', sans-serif; font-size: 0.8rem;
-  font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
-  transition: background 0.2s; border-radius: 5px; white-space: nowrap;
-}
-.btn-add-to-cart:hover { background: var(--rose); }
-
-/* ── CUSTOM BUILDER ── */
-.builder-inner { max-width: 900px; margin: 0 auto; }
-.builder-steps { display: flex; gap: 0.5rem; margin-bottom: 3rem; justify-content: center; flex-wrap: wrap; }
-.builder-step {
-  display: flex; align-items: center; gap: 0.5rem;
-  font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
-  font-weight: 500; color: var(--dusty); padding: 0.5rem 1rem;
-  border-radius: 5px; transition: all 0.2s;
-}
-.builder-step.active { background: var(--rose); color: white; }
-.builder-step.done   { background: var(--sage); color: white; }
-.step-num {
-  width: 22px; height: 22px; border-radius: 50%;
-  border: 1.5px solid currentColor;
-  display: flex; align-items: center; justify-content: center; font-size: 0.7rem;
-}
-.builder-prompt {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.4rem; margin-bottom: 1.5rem; color: var(--deep);
-}
-.options-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 1rem; margin-bottom: 2rem;
-}
-.options-grid--2col {
-  grid-template-columns: repeat(2, 1fr);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  gap: 1.25rem;
-}
-.options-grid--2col .option-card {
-  padding: 2rem 1.5rem;
-}
-.options-grid--2col .option-emoji {
-  font-size: 3.2rem;
-}
-.options-grid--2col .option-name {
-  font-size: 0.95rem;
-  margin-top: 0.25rem;
-}
-.options-grid--2col .option-sub {
-  font-size: 0.78rem;
-  margin-top: 0.3rem;
-}
-.options-grid--2col .option-price {
-  font-size: 1rem;
-  margin-top: 0.5rem;
-}
-.options-grid--4col {
-  grid-template-columns: repeat(4, 1fr);
-}
-.option-price-tbd {
-  font-size: 0.72rem; color: var(--dusty); font-style: italic; letter-spacing: 0;
-}
-.tbd-tag {
-  font-size: 0.78rem; color: var(--dusty); font-style: italic;
-}
-.option-card {
-  background: white; border: 2px solid transparent; border-radius: 7px;
-  padding: 1.2rem; text-align: center; cursor: pointer;
-  transition: all 0.2s; box-shadow: 0 2px 10px rgba(46,35,24,0.06);
-}
-.option-card:hover  { border-color: var(--blush); transform: translateY(-2px); }
-.option-card.selected { border-color: var(--rose); background: rgba(201,120,90,0.05); }
-.option-emoji { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
-.option-name  { font-size: 0.82rem; font-weight: 500; color: var(--deep); }
-.option-sub   { font-size: 0.72rem; color: var(--dusty); margin-top: 0.2rem; }
-.option-price { margin-top: 0.4rem; font-size: 0.8rem; color: var(--rose); font-family: 'Cormorant Garamond', serif; font-weight: 600; }
-.builder-nav  { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-top: 2rem; }
-.builder-summary {
-  background: white; border-radius: 7px; padding: 1.5rem;
-  margin-bottom: 2rem; box-shadow: 0 2px 20px rgba(46,35,24,0.08);
-}
-.summary-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; margin-bottom: 1rem; color: var(--deep); }
-.summary-row {
-  display: flex; justify-content: space-between;
-  font-size: 0.85rem; padding: 0.4rem 0;
-  border-bottom: 1px solid rgba(196,162,101,0.15); color: var(--dusty);
-}
-.summary-total {
-  font-size: 1.1rem; font-weight: 600; color: var(--rose);
-  padding-top: 0.8rem; display: flex; justify-content: space-between;
-}
-
-/* ── BOOKING ── */
-.booking-inner { max-width: 700px; margin: 0 auto; }
-.booking-form  { display: flex; flex-direction: column; gap: 0; }
-.form-group    { margin-bottom: 1.5rem; }
-.form-label    {
-  display: block; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--dusty); margin-bottom: 0.5rem; font-weight: 500;
-}
-.form-input, .form-textarea {
-  width: 100%; border: 1px solid rgba(196,162,101,0.3);
-  background: var(--cream); border-radius: 5px;
-  padding: 0.8rem 1rem; font-family: 'Jost', sans-serif; font-size: 0.9rem;
-  color: var(--deep); transition: border-color 0.2s; outline: none;
-}
-.form-input:focus, .form-textarea:focus { border-color: var(--rose); }
-.form-textarea { min-height: 120px; resize: vertical; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.occasion-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.chip {
-  background: var(--cream); border: 1px solid rgba(196,162,101,0.3);
-  border-radius: 22px; padding: 0.4rem 1rem; cursor: pointer;
-  font-size: 0.78rem; font-family: 'Jost', sans-serif; color: var(--dusty);
-  transition: all 0.2s;
-}
-.chip:hover    { border-color: var(--rose); color: var(--rose); }
-.chip.selected { background: var(--rose); color: white; border-color: var(--rose); }
-.submit-btn {
-  width: 100%; background: var(--rose); color: white; border: none; cursor: pointer;
-  padding: 1rem; font-family: 'Jost', sans-serif;
-  font-size: 0.85rem; font-weight: 500; letter-spacing: 0.15em;
-  text-transform: uppercase; border-radius: 5px; transition: all 0.2s; margin-top: 1rem;
-}
-.submit-btn:hover { background: var(--dusty); }
-.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.success-msg {
-  text-align: center; padding: 3rem;
-  background: rgba(122,140,110,0.08); border-radius: 7px;
-  border: 1px solid rgba(122,140,110,0.2);
-}
-.success-icon { font-size: 3rem; margin-bottom: 1rem; }
-.success-msg h3 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--moss); margin-bottom: 0.5rem; }
-.success-msg p  { color: var(--dusty); font-size: 0.9rem; margin-bottom: 1.5rem; }
-
-/* ── CART MODAL ── */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(46,35,24,0.5);
-  z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem;
-}
-.modal {
-  background: white; border-radius: 9px; max-width: 500px; width: 100%;
-  max-height: 80vh; overflow-y: auto;
-  box-shadow: 0 30px 80px rgba(46,35,24,0.3);
-}
-.modal-header {
-  padding: 1.5rem 2rem; border-bottom: 1px solid rgba(196,162,101,0.2);
-  display: flex; justify-content: space-between; align-items: center;
-}
-.modal-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; }
-.modal-close { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--dusty); }
-.modal-body  { padding: 1.5rem 2rem; }
-.cart-empty  { color: var(--dusty); text-align: center; padding: 2rem 0; }
-.cart-item {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 1rem 0; border-bottom: 1px solid rgba(196,162,101,0.15);
-}
-.cart-item-name   { font-size: 0.9rem; font-weight: 500; color: var(--deep); }
-.cart-item-right  { display: flex; align-items: center; }
-.cart-item-price  { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--rose); }
-.cart-remove      { background: none; border: none; cursor: pointer; color: var(--dusty); font-size: 1rem; margin-left: 1rem; }
-.cart-total {
-  font-family: 'Cormorant Garamond', serif; font-size: 1.4rem;
-  font-weight: 600; color: var(--rose); text-align: right;
-  padding: 1rem 0 0.5rem;
-}
-.stripe-note {
-  text-align: center; font-size: 0.72rem; color: var(--dusty);
-  margin-top: 0.75rem; line-height: 1.5;
-}
-.field-error {
-  display: block; color: var(--rose); font-size: 0.75rem; margin-top: 0.3rem;
-}
+const FLOWER_COLORS = {
+  rose:        ["Classic Red", "Pure White", "Sunny Yellow", "Soft Pink", "Deep Purple", "Burnt Orange", "Coral Peach", "Lavender", "Champagne Cream", "Dusty Rose", "Midnight Blue", "Sage Green", "Burgundy", "Hot Pink", "Ombre Blush"],
+  peony:       ["Pure White", "Blush Pink", "Hot Pink", "Coral", "Classic Red", "Burgundy", "Lavender", "Champagne", "Dusty Mauve", "Cotton Candy", "Peachy Cream", "Magenta", "Soft Lilac", "Rose Gold", "Ivory"],
+  lily:        ["Pure White", "Soft Pink", "Sunny Yellow", "Deep Purple", "Burnt Orange", "Classic Red", "Peach", "Lavender", "Champagne", "Coral", "Blush", "Magenta", "Cream", "Dusty Rose", "Sky Blue"],
+  tulip:       ["Classic Red", "Sunshine Yellow", "Pure White", "Bubblegum Pink", "Deep Purple", "Burnt Orange", "Midnight Black", "Coral", "Lavender", "Peach", "Burgundy", "Hot Pink", "Cream", "Teal", "Ombre Pink"],
+  sunflower:   ["Classic Yellow", "Autumn Orange", "Cream White", "Deep Red", "Lemon Yellow", "Burnt Sienna", "Golden Honey", "Pale Butter", "Rustic Brown", "Sunset Peach", "Terracotta", "Champagne Gold", "Dusty Yellow", "Coral Blaze", "Copper"],
+  orchid:      ["Pure White", "Deep Purple", "Blush Pink", "Sunshine Yellow", "Midnight Blue", "Magenta", "Lavender", "Coral", "Champagne", "Hot Pink", "Burgundy", "Soft Peach", "Teal", "Ivory", "Dusty Rose"],
+  babysbreath: ["Pure White", "Blush Pink", "Soft Lavender", "Lemon Yellow", "Coral", "Sky Blue", "Mint Green", "Peach", "Lilac", "Hot Pink", "Champagne", "Dusty Rose", "Teal", "Ivory", "Sunset Orange"],
+  lavender:    ["Classic Purple", "Deep Violet", "Pale Lilac", "Pure White", "Dusty Pink", "Midnight Blue", "Soft Sage", "Lavender Blush", "Periwinkle", "Mauve", "Plum", "Steel Blue", "Rose Taupe", "Champagne", "Ombre Violet"],
+  wildflower:  ["Mixed Rainbow", "Warm Sunset Tones", "Cool Ocean Tones", "Pastel Dreamscape", "White & Cream", "Meadow Greens", "Berry Mix", "Desert Blooms", "Spring Garden", "Moody Darks", "Boho Neutrals", "Tropical Brights", "Lavender Fields", "Golden Hour", "Rustic Harvest"],
+  statice:     ["Classic Purple", "Pure White", "Bubblegum Pink", "Soft Lavender", "Lemon Yellow", "Sky Blue", "Coral", "Dusty Rose", "Magenta", "Champagne", "Teal", "Ivory", "Plum", "Peach", "Mint"],
+  eucalyptus:  ["Silver Green", "Deep Forest Green", "Blue-Green", "Sage", "Olive", "Mint", "Dusty Green", "Emerald", "Sea Glass Green", "Pale Celadon"],
+  fern:        ["Bright Spring Green", "Deep Forest Green", "Olive", "Sage", "Mint", "Emerald", "Dusty Fern", "Yellow-Green"],
+  ivy:         ["Classic Green", "Variegated Green & White", "Deep Hunter Green", "Sage", "Olive", "Lime", "Dusty Green", "Emerald"],
+  succulent:   ["Green Mix", "Purple-Tipped", "Blue-Green", "Red-Tipped", "Dusty Rose", "Silver", "Sage", "Burgundy Edges", "Teal", "Pale Mint"],
+};
 
 
-/* ── BUILDER TABS ── */
-.builder-tabs {
-  display: flex; gap: 0; margin-bottom: 2.5rem;
-  border: 1px solid rgba(196,162,101,0.3); border-radius: 7px;
-  overflow: hidden; max-width: 480px; margin-left: auto; margin-right: auto;
-  margin-bottom: 2.5rem;
-}
-.builder-tab {
-  flex: 1; background: transparent; border: none; cursor: pointer;
-  padding: 0.85rem 1.5rem; font-family: 'Jost', sans-serif;
-  font-size: 0.78rem; font-weight: 500; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--dusty);
-  transition: all 0.2s; border-right: 1px solid rgba(196,162,101,0.3);
-}
-.builder-tab:last-child { border-right: none; }
-.builder-tab:hover { background: rgba(196,162,101,0.08); color: var(--deep); }
-.builder-tab.active { background: var(--rose); color: white; }
+const GENDER_STEPS = ["Filler", "Greenery", "Substrate", "Vase", "Size"];
+const GENDER_DATA  = [FILLER_OPTIONS, GREENERY_OPTIONS, SUBSTRATE_OPTIONS, VASE_OPTIONS, SIZE_OPTIONS];
+const GENDER_KEYS  = ["filler", "greenery", "substrate", "vase", "size"];
 
-/* ── DESCRIBE YOUR OWN ── */
-.custom-request { max-width: 680px; margin: 0 auto; }
-.custom-request-intro {
-  background: white; border-radius: 7px; padding: 1.5rem 2rem;
-  margin-bottom: 2rem; border-left: 4px solid var(--rose);
-  box-shadow: 0 2px 10px rgba(46,35,24,0.06);
-}
-.custom-request-intro p {
-  font-size: 0.9rem; line-height: 1.8; color: var(--dusty);
-}
-.custom-textarea { min-height: 200px; }
-.custom-request-note {
-  text-align: center; font-size: 0.78rem; color: var(--dusty);
-  margin-top: 1rem; line-height: 1.6;
-}
+const OCCASIONS = ["Birthday", "Anniversary", "Wedding", "Home Décor", "Business / Office", "Sympathy", "Just Because", "Holiday"];
 
+const SIZE_OPTIONS = [
+  { id: "small",    emoji: "🌱", name: "Small",       sub: "Tabletop & petite",         price: 0 },
+  { id: "medium",   emoji: "🌿", name: "Medium",      sub: "Centerpiece & everyday",    price: 15 },
+  { id: "large",    emoji: "🌳", name: "Large",       sub: "Statement & floor piece",   price: 35 },
+  { id: "xlarge",   emoji: "🏡", name: "Extra Large", sub: "Grand & full installation", price: 60 },
+];
 
-/* ── GENDER REVEAL ── */
-.gender-reveal-inner { max-width: 900px; margin: 0 auto; }
+const BUILDER_STEPS = ["Focal Flower", "Filler", "Greenery", "Substrate", "Vase", "Size"];
+const BUILDER_DATA  = [FOCAL_OPTIONS, FILLER_OPTIONS, GREENERY_OPTIONS, SUBSTRATE_OPTIONS, VASE_OPTIONS, SIZE_OPTIONS];
+const BUILDER_KEYS  = ["focal", "filler", "greenery", "substrate", "vase", "size"];
 
-/* Tighten bottom of gender reveal and top of booking to flow naturally */
-#gender-reveal { padding-bottom: 4rem; }
-#booking { padding-top: 4rem; }
+export default function App() {
+  const [cart, setCart]                       = useState([]);
+  const [cartOpen, setCartOpen]               = useState(false);
+  const [checkingOut, setCheckingOut]         = useState(false);
+  const [toast, setToast]                     = useState(null);
+  const [builderMode, setBuilderMode]         = useState("guided"); // "guided" | "custom"
+  const [builderStep, setBuilderStep]         = useState(0);
+  const [builderSel, setBuilderSel]           = useState({ focal: null, filler: null, greenery: null, substrate: null, vase: null, size: null });
+  const [builderColors, setBuilderColors]     = useState({ focal: "", filler: "", greenery: "" });
+  const [builderNotes, setBuilderNotes]       = useState("");
+  const [bookingOccasion, setBookingOccasion] = useState([]);
 
-.gender-cards {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 2rem; margin-bottom: 3rem;
-}
-.gender-card {
-  border-radius: 11px; padding: 2.5rem 2rem; text-align: center;
-  cursor: pointer; transition: all 0.3s;
-  border: 3px solid transparent;
-  box-shadow: 0 4px 20px rgba(46,35,24,0.08);
-  position: relative;
-}
-.gender-card--boy {
-  background: linear-gradient(135deg, #e8f2fc, #d0e8f8);
-}
-.gender-card--boy:hover, .gender-card--boy.selected {
-  border-color: #5b8fc9;
-  box-shadow: 0 8px 32px rgba(91,143,201,0.25);
-  transform: translateY(-4px);
-}
-.gender-card--girl {
-  background: linear-gradient(135deg, #fce8f2, #f8d0e4);
-}
-.gender-card--girl:hover, .gender-card--girl.selected {
-  border-color: #d4789a;
-  box-shadow: 0 8px 32px rgba(212,120,154,0.25);
-  transform: translateY(-4px);
-}
-.gender-card-icon { font-size: 3.5rem; margin-bottom: 1rem; }
-.gender-card-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.8rem; font-weight: 400; margin-bottom: 0.8rem; color: var(--deep);
-}
-.gender-card-desc {
-  font-size: 0.85rem; line-height: 1.7; color: var(--dusty);
-}
-.gender-selected-badge {
-  display: inline-block; margin-top: 1.2rem;
-  background: var(--deep); color: white;
-  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 0.3rem 1rem; border-radius: 22px;
-}
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2800);
+  };
 
-.gender-form-wrap {
-  background: white; border-radius: 11px; padding: 2.5rem;
-  box-shadow: 0 4px 24px rgba(46,35,24,0.08);
-  max-width: 700px; margin: 0 auto;
-}
-.gender-form-header {
-  text-align: center; margin-bottom: 2rem;
-  padding-bottom: 1.5rem; border-bottom: 1px solid rgba(196,162,101,0.2);
-}
-.gender-form-header h3 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.8rem; font-weight: 300; color: var(--deep); margin-bottom: 0.4rem;
-}
-.gender-form-header h3 em { font-style: italic; color: var(--rose); }
-.gender-form-header p { font-size: 0.85rem; color: var(--dusty); }
+  const addToCart = (item) => {
+    setCart((c) => [...c, { ...item, cartId: Date.now() + Math.random() }]);
+    showToast(`✿ "${item.name}" added to your cart`);
+  };
 
-.gender-vase-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;
-}
-.gender-vase-option { cursor: pointer; }
-.gender-vase-option input:checked + .gender-vase-card {
-  border-color: var(--rose); background: rgba(201,120,90,0.05);
-}
-.gender-vase-card {
-  border: 2px solid transparent; border-radius: 7px; padding: 1rem 0.5rem;
-  text-align: center; background: var(--cream);
-  transition: all 0.2s;
-}
-.gender-vase-card:hover { border-color: var(--blush); }
+  const removeFromCart = (cartId) => setCart((c) => c.filter((i) => i.cartId !== cartId));
+  const cartTotal = cart.reduce((s, i) => s + i.price, 0);
 
-.chip-radio { cursor: pointer; }
-.chip-radio input:checked + .chip {
-  background: var(--rose); color: white; border-color: var(--rose);
-}
+  const handleCheckout = async () => {
+    setCheckingOut(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: cart }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        const w = Math.min(window.screen.width * 0.85, 1100);
+        const h = Math.min(window.screen.height * 0.85, 800);
+        const left = (window.screen.width - w) / 2;
+        const top  = (window.screen.height - h) / 2;
+        window.open(data.url, "_blank", `width=${Math.round(w)},height=${Math.round(h)},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`);
+      } else {
+        alert("Error: " + (data.error || "Could not start checkout. Please try again."));
+        setCheckingOut(false);
+      }
+    } catch (err) {
+      alert("Network error. Please check your connection and try again.");
+      setCheckingOut(false);
+    }
+  };
 
-.gender-submit { margin-top: 0.5rem; }
+  const buyNow = (item) => {
+    if (item.stripeLink) {
+      window.location.href = item.stripeLink;
+    } else {
+      alert("Payment link coming soon! Please use the Book a Consultation form to order.");
+    }
+  };
 
-@media (max-width: 768px) {
-  .gender-cards { grid-template-columns: 1fr; }
-  .gender-vase-grid { grid-template-columns: repeat(2, 1fr); }
-  .gender-form-wrap { padding: 1.5rem; }
-}
+  const builderPrice = BUILDER_KEYS.reduce((s, k, i) => {
+    const found = BUILDER_DATA[i].find((o) => o.id === builderSel[k]);
+    return s + (found && found.price !== undefined ? found.price : 0);
+  }, 35);
 
+  // Color label helpers
+  const getColorKey = (stepKey) => ["focal","filler","greenery"].includes(stepKey) ? stepKey : null;
+  const getColorsForStep = (stepKey, selId) => {
+    if (!selId) return [];
+    return FLOWER_COLORS[selId] || [];
+  };
 
-/* ── SUBSTRATE SELECTOR ── */
-.substrate-note {
-  font-size: 0.78rem; color: var(--dusty); margin-bottom: 0.75rem; line-height: 1.6;
-}
-.substrate-grid {
-  display: flex; flex-wrap: wrap; gap: 0.5rem;
-}
-.substrate-option { cursor: pointer; }
-.substrate-option input:checked + .chip {
-  background: var(--rose); color: white; border-color: var(--rose);
-}
+  const addCustomToCart = () => {
+    const components = BUILDER_KEYS.map((k, i) => {
+      const selId = builderSel[k];
+      if (!selId || selId === "__skip__") return null;
+      const sel = BUILDER_DATA[i].find((o) => o.id === selId);
+      if (!sel) return null;
+      const color = builderColors[k] ? ` (${builderColors[k]})` : "";
+      return `${sel.emoji} ${sel.name}${color}`;
+    }).filter(Boolean).join(", ");
 
-/* ── SHIPPING DISCLAIMER ── */
-.shipping-disclaimer {
-  margin-top: 2.5rem; padding: 2rem 2.5rem;
-  background: linear-gradient(135deg, rgba(196,162,101,0.07), rgba(250,246,240,0.9));
-  border: 1px solid rgba(196,162,101,0.3);
-  border-left: 5px solid var(--gold);
-  border-radius: 11px;
-  box-shadow: 0 4px 20px rgba(196,162,101,0.1);
-}
-.shipping-free-note {
-  background: rgba(122,140,110,0.12); color: var(--moss) !important;
-  border-radius: 5px; padding: 0.6rem 1rem !important;
-  font-size: 0.85rem !important; margin-bottom: 1rem !important;
-}
-.disclaimer-title {
-  font-family: 'Jost', sans-serif; font-size: 0.85rem;
-  font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--deep); margin-bottom: 0.75rem;
-}
-.shipping-disclaimer p {
-  font-size: 0.82rem; color: var(--dusty); line-height: 1.7; margin-bottom: 0.75rem;
-}
-.shipping-disclaimer ul {
-  padding-left: 1.2rem; margin-bottom: 0.75rem;
-}
-.shipping-disclaimer ul li {
-  font-size: 0.82rem; color: var(--dusty); line-height: 1.7; margin-bottom: 0.5rem;
-}
-.shipping-disclaimer ul li strong { color: var(--deep); }
-.disclaimer-footer {
-  font-size: 0.78rem !important; font-style: italic;
-  color: var(--dusty) !important; margin-bottom: 0 !important;
-}
+    const customItem = {
+      name: `Custom Arrangement (${components}${builderNotes ? ` · Note: ${builderNotes.slice(0,40)}…` : ""})`,
+      price: builderPrice,
+      cartId: Date.now() + Math.random(),
+    };
+    setCart((c) => [...c, customItem]);
+    showToast(`✿ Custom arrangement added to your cart`);
+    setBuilderStep(0);
+    setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null, size: null });
+    setBuilderColors({ focal: "", filler: "", greenery: "" });
+    setBuilderNotes("");
+  };
 
-/* ── BRIDAL SECTION ── */
-#bridal { background: linear-gradient(160deg, #fdf0f5, #f5e8ef); }
-#bridal .portfolio-grid { max-width: 1100px; margin: 0 auto; }
+  // ── FIXED: sends all selected components to /api/checkout instead of
+  //           redirecting to the vase's individual Stripe link only.
+  const buyCustom = async () => {
+    setCheckingOut(true);
+    const items = [
+      { name: "Custom Arrangement — Base & Labour", price: 35 },
+      ...BUILDER_KEYS.map((k, i) => {
+        const selId = builderSel[k];
+        if (!selId || selId === "__skip__") return null;
+        const sel = BUILDER_DATA[i].find((o) => o.id === selId);
+        if (!sel) return null;
+        const color = builderColors[k] ? ` · ${builderColors[k]}` : "";
+        return { name: `${BUILDER_STEPS[i]}: ${sel.name}${color}${sel.price === undefined ? " (priced by weight)" : ""}`, price: sel.price !== undefined ? sel.price : 0 };
+      }).filter(Boolean),
+      ...(builderNotes ? [{ name: `Special Requests: ${builderNotes}`, price: 0 }] : []),
+    ];
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        const w = Math.min(window.screen.width * 0.85, 1100);
+        const h = Math.min(window.screen.height * 0.85, 800);
+        const left = (window.screen.width - w) / 2;
+        const top  = (window.screen.height - h) / 2;
+        window.open(data.url, "_blank", `width=${Math.round(w)},height=${Math.round(h)},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`);
+        setBuilderStep(0);
+        setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null, size: null });
+        setBuilderColors({ focal: "", filler: "", greenery: "" });
+        setBuilderNotes("");
+      } else {
+        alert(data.error || "Could not start checkout. Please try again.");
+        setCheckingOut(false);
+      }
+    } catch {
+      alert("Network error. Please check your connection and try again.");
+      setCheckingOut(false);
+    }
+  };
 
-@media (max-width: 768px) {
-  .substrate-grid { gap: 0.4rem; }
-  .shipping-disclaimer { padding: 1rem 1.2rem; }
-}
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
 
+  const [formState, handleBookingSubmit] = useForm("xpqbelga");
+  const [customForm, handleCustomSubmit]  = useForm("xpqbelga"); // reuses same Formspree endpoint
+  const [genderForm, handleGenderSubmit]  = useForm("xpqbelga"); // gender reveal requests
+  const [genderChoice, setGenderChoice]   = useState(null);      // "boy" | "girl" | null
+  const [genderStep, setGenderStep]       = useState(0);         // 0=filler,1=greenery,2=substrate,3=vase,4=size,5=notes,6=review
+  const [genderSel, setGenderSel]         = useState({ filler: null, greenery: null, substrate: null, vase: null, size: null });
+  const [genderNotes, setGenderNotes]     = useState("");
+  const [genderContact, setGenderContact] = useState({ name:"", email:"", phone:"", date:"" });
+  const [bridalForm, handleBridalSubmit]  = useForm("xpqbelga"); // bridal requests
+  const [bridalTab, setBridalTab]         = useState("preset");  // "preset" | "custom"
+  const [selectedSubstrate, setSelectedSubstrate] = useState([]);
 
-/* ── COLOR PICKER ── */
-.color-picker-wrap {
-  margin: 1.5rem auto 0;
-  max-width: 520px;
-  background: linear-gradient(135deg, rgba(250,246,240,0.95), rgba(232,201,184,0.2));
-  border: 1px solid rgba(196,162,101,0.3);
-  border-radius: 22px;
-  padding: 1.25rem 1.75rem;
-  box-shadow: 0 4px 20px rgba(196,162,101,0.12), 0 1px 4px rgba(196,162,101,0.08);
-  animation: bloomIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
-}
-@keyframes bloomIn {
-  from { opacity:0; transform:translateY(-8px) scale(0.97); }
-  to   { opacity:1; transform:translateY(0) scale(1); }
-}
-.color-picker-label {
-  display: block;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1rem; font-style: italic; font-weight: 400;
-  color: var(--rose); margin-bottom: 0.75rem; letter-spacing: 0.03em;
-}
-.color-picker-select {
-  width: 100%; padding: 0.8rem 1.2rem;
-  border: 1px solid rgba(196,162,101,0.35);
-  border-radius: 22px;
-  background: rgba(255,255,255,0.85);
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1rem; font-style: italic;
-  color: var(--deep); cursor: pointer; outline: none;
-  transition: all 0.2s;
-  box-shadow: inset 0 1px 3px rgba(196,162,101,0.1);
-}
-.color-picker-select:focus {
-  border-color: var(--rose);
-  box-shadow: 0 0 0 3px rgba(201,120,90,0.1), inset 0 1px 3px rgba(196,162,101,0.1);
-}
-.color-picker-select:hover { border-color: var(--gold); }
+  return (
+    <div className="app">
+      <nav className="nav">
+        <div className="nav-logo">Florals <em>Forever</em></div>
+        <div className="nav-right">
+          <ul className="nav-links">
+            {[["home","Home"],["portfolio","Shop"],["builder","Custom Builder"],["gender-reveal","Gender Reveal"],["bridal","Bridal"],["booking","Book Consultation"]].map(([id, label]) => (
+              <li key={id}><button onClick={() => scrollTo(id)}>{label}</button></li>
+            ))}
+          </ul>
+          <button className="nav-disclaimer" onClick={() => scrollTo("disclaimer")} title="Shipping & Care Info">
+            ✨ Care Guide
+          </button>
+          <button className="nav-cart" onClick={() => setCartOpen(true)}>
+            🛒 Cart ({cart.length})
+          </button>
+        </div>
+      </nav>
 
-/* ── SKIP BUTTON ── */
-.btn-skip {
-  background: linear-gradient(135deg, rgba(250,246,240,0.9), rgba(232,213,200,0.4));
-  color: var(--dusty);
-  border: 1px solid rgba(196,162,101,0.35);
-  cursor: pointer;
-  padding: 0.9rem 1.8rem;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1rem; font-style: italic; font-weight: 400;
-  letter-spacing: 0.04em;
-  border-radius: 22px;
-  transition: all 0.25s;
-  box-shadow: 0 2px 8px rgba(196,162,101,0.1);
-}
-.btn-skip:hover {
-  background: linear-gradient(135deg, rgba(196,162,101,0.15), rgba(232,213,200,0.5));
-  border-color: var(--gold);
-  color: var(--rose);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(196,162,101,0.18);
-}
+      <section id="home" className="hero">
+        <div className="hero-content">
+          <p className="eyebrow">✦ Handcrafted by Carl · Gainesville, Florida ✦</p>
+          <h1 className="hero-title">Arrangements that<br /><em>last a lifetime</em></h1>
+          <p className="hero-sub">
+            Each piece is lovingly handcrafted from premium artificial flowers — focal blooms,
+            fillers, and lush greenery — so you can enjoy breathtaking beauty that never wilts,
+            never fades, never dies.
+          </p>
+          <div className="hero-btns">
+            <button className="btn-primary" onClick={() => scrollTo("portfolio")}>Shop Arrangements</button>
+            <button className="btn-outline" onClick={() => scrollTo("builder")}>Build Your Own</button>
+          </div>
+          <div className="hero-badges">
+            <div className="badge"><span className="badge-num">100%</span><span className="badge-lbl">Artificial & Lasting</span></div>
+            <div className="badge"><span className="badge-num">∞</span><span className="badge-lbl">Lifetime Beauty</span></div>
+            <div className="badge"><span className="badge-num">✦</span><span className="badge-lbl">Handmade by Carl</span></div>
+          </div>
+        </div>
+        <div className="hero-floral" aria-hidden="true">❀</div>
+      </section>
 
-/* ── BUILDER NOTES ── */
-.builder-notes-wrap { max-width: 680px; margin: 0 auto; }
-.builder-prompt--notes {
-  font-family: 'Cormorant Garamond', serif !important;
-  font-style: italic !important;
-  color: var(--rose) !important;
-  font-size: 1.6rem !important;
-  font-weight: 300 !important;
-}
-.builder-notes-textarea {
-  min-height: 180px; margin-bottom: 0.75rem;
-  font-family: 'Cormorant Garamond', serif !important;
-  font-size: 1rem !important; font-style: italic !important;
-  line-height: 1.8 !important;
-  border-radius: 11px !important;
-  border-color: rgba(196,162,101,0.3) !important;
-  background: linear-gradient(135deg, rgba(250,246,240,0.9), white) !important;
-}
-.builder-notes-textarea:focus {
-  border-color: var(--rose) !important;
-  box-shadow: 0 0 0 3px rgba(201,120,90,0.08) !important;
-}
-.builder-notes-hint {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.95rem; color: var(--dusty); text-align: center; line-height: 1.7;
-}
-.summary-row--notes { align-items: flex-start; }
-.summary-notes-text {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic; color: var(--dusty); font-size: 0.9rem;
-  max-width: 60%; text-align: right; line-height: 1.6;
-}
+      <section id="portfolio" className="section section--white">
+        <div className="section-header">
+          <p className="eyebrow">✦ The Collection ✦</p>
+          <h2 className="section-title">Ready-Made <em>Arrangements</em></h2>
+          <p className="section-sub">Each one handcrafted, ready to ship. Yours forever.</p>
+        </div>
+        <div className="portfolio-grid">
+          {ARRANGEMENTS.map((a) => (
+            <div key={a.id} className="portfolio-card">
+              <div className="portfolio-img"><span>{a.emoji}</span></div>
+              <div className="portfolio-info">
+                <h3 className="portfolio-name">{a.name}</h3>
+                <p className="portfolio-desc">{a.desc}</p>
+                <div className="portfolio-tags">
+                  {a.tags.map((t) => <span key={t} className="tag">{t}</span>)}
+                </div>
+                <div className="portfolio-price">${a.price}</div>
+                <div className="card-btns">
+                  <button className="add-to-cart" onClick={() => addToCart(a)}>Add to Cart</button>
+                  <button className="buy-now" onClick={() => buyNow(a)}>Buy Now</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-/* ── GENDER REVEAL VISUAL PROMPT ── */
-.gender-visual-prompt { margin-bottom: 1.5rem; }
-.gender-visual-banner {
-  border-radius: 11px; padding: 1.5rem 2rem;
-  display: flex; align-items: center; gap: 1.5rem;
-  box-shadow: 0 4px 16px rgba(46,35,24,0.08);
-}
-.gender-visual-icon { font-size: 2.5rem; flex-shrink: 0; }
-.gender-visual-text h4 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.3rem; font-weight: 400; color: var(--deep); margin-bottom: 0.4rem;
-}
-.gender-visual-text p { font-size: 0.82rem; color: var(--dusty); line-height: 1.7; margin-bottom: 0.3rem; }
-.gender-visual-cta { font-style: italic; color: var(--rose) !important; font-size: 0.8rem !important; }
+      <section id="builder" className="section section--tinted">
+        <div className="section-header">
+          <p className="eyebrow">✦ Design Studio ✦</p>
+          <h2 className="section-title">Build Your <em>Custom</em> Arrangement</h2>
+          <p className="section-sub">Pick each element and Carl will bring your vision to life — or describe your dream arrangement in your own words.</p>
+        </div>
+        <div className="builder-inner">
 
-@media (max-width: 768px) {
-  .gender-visual-banner { flex-direction: column; text-align: center; }
-  .builder-notes-wrap { max-width: 100%; }
-}
+          {/* ── MODE TABS ── */}
+          <div className="builder-tabs">
+            <button
+              className={`builder-tab ${builderMode === "guided" ? "active" : ""}`}
+              onClick={() => setBuilderMode("guided")}
+            >
+              ✦ Step-by-Step Builder
+            </button>
+            <button
+              className={`builder-tab ${builderMode === "custom" ? "active" : ""}`}
+              onClick={() => setBuilderMode("custom")}
+            >
+              ✍ Describe Your Own
+            </button>
+          </div>
 
+          {/* ── GUIDED BUILDER ── */}
+          {builderMode === "guided" && (<>
+            <div className="builder-steps">
+              {BUILDER_STEPS.map((s, i) => (
+                <div key={s} className={`builder-step ${builderStep === i ? "active" : builderSel[BUILDER_KEYS[i]] ? "done" : ""}`}>
+                  <span className="step-num">{builderSel[BUILDER_KEYS[i]] ? "✓" : i + 1}</span>
+                  {s}
+                </div>
+              ))}
+              <div className={`builder-step ${builderStep === 6 ? "active" : builderNotes ? "done" : ""}`}>
+                <span className="step-num">{builderNotes ? "✓" : 7}</span>
+                Notes
+              </div>
+            </div>
 
-/* ── GENDER BUILDER ── */
-.gender-builder-wrap {
-  max-width: 900px; margin: 0 auto;
-}
-.gender-contact-fields {
-  background: var(--cream); border-radius: 7px;
-  padding: 1.5rem; margin-top: 1.5rem;
-  border: 1px solid rgba(196,162,101,0.2);
-}
-.gender-contact-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.1rem; font-weight: 400; font-style: italic;
-  color: var(--rose); margin-bottom: 1rem;
-}
+            {builderStep < 6 ? (
+              <>
+                <h3 className="builder-prompt">
+                  {builderSel[BUILDER_KEYS[builderStep]]
+                    ? `✓ ${BUILDER_DATA[builderStep].find(o => o.id === builderSel[BUILDER_KEYS[builderStep]])?.name} selected`
+                    : `Choose your ${BUILDER_STEPS[builderStep]}`}
+                </h3>
+                <div className={`options-grid ${
+                  BUILDER_DATA[builderStep].length === 4 ? "options-grid--2col" :
+                  BUILDER_DATA[builderStep].length > 8 ? "options-grid--4col" : ""
+                }`}>
+                  {BUILDER_DATA[builderStep].map((opt) => (
+                    <div key={opt.id} className={`option-card ${builderSel[BUILDER_KEYS[builderStep]] === opt.id ? "selected" : ""}`}
+                      onClick={() => setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: opt.id }))}>
+                      <span className="option-emoji">{opt.emoji}</span>
+                      <div className="option-name">{opt.name}</div>
+                      <div className="option-sub">{opt.sub}</div>
+                      <div className="option-price">
+                        {opt.price !== undefined ? `+$${opt.price}` : <span className="option-price-tbd">+ To be determined by weight</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-/* ── FOOTER ── */
-.footer {
-  background: var(--deep); color: rgba(250,246,240,0.6);
-  padding: 3rem 4rem; text-align: center;
-}
-.footer h3 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--cream); margin-bottom: 0.5rem; }
-.footer h3 em { font-style: italic; color: var(--rose); }
-.footer p { font-size: 0.8rem; line-height: 1.8; }
-.footer-tagline { color: var(--rose); margin-top: 0.4rem; }
-.footer-copy    { margin-top: 1.5rem; font-size: 0.72rem; opacity: 0.5; }
+                {/* Color dropdown for focal, filler, greenery steps */}
+                {getColorKey(BUILDER_KEYS[builderStep]) && builderSel[BUILDER_KEYS[builderStep]] && (
+                  <div className="color-picker-wrap">
+                    <label className="color-picker-label">Breathe life into it — choose your color ✦</label>
+                    <select
+                      className="color-picker-select"
+                      value={builderColors[BUILDER_KEYS[builderStep]]}
+                      onChange={(e) => setBuilderColors((c) => ({ ...c, [BUILDER_KEYS[builderStep]]: e.target.value }))}
+                    >
+                      <option value="">✦ Pick a shade that speaks to you...</option>
+                      {getColorsForStep(BUILDER_KEYS[builderStep], builderSel[BUILDER_KEYS[builderStep]]).map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                      <option value="Carl's choice">Carl's choice — surprise me!</option>
+                    </select>
+                  </div>
+                )}
 
-/* ── TOAST ── */
-.toast {
-  position: fixed; bottom: 2rem; right: 2rem; z-index: 300;
-  background: var(--deep); color: white; padding: 1rem 1.5rem;
-  border-radius: 7px; font-size: 0.85rem;
-  box-shadow: 0 10px 30px rgba(46,35,24,0.3);
-  animation: slideUp 0.3s ease;
-  border-left: 4px solid var(--rose);
-}
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
+                <div className="builder-nav">
+                  <button className="btn-outline" onClick={() => setBuilderStep((s) => Math.max(0, s - 1))} disabled={builderStep === 0}>← Back</button>
+                  <button className="btn-skip" onClick={() => { setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: "__skip__" })); setBuilderStep((s) => s + 1); }}>
+                    not for me ✦
+                  </button>
+                  <button className="btn-primary" onClick={() => setBuilderStep((s) => s + 1)}>
+                    {builderStep === 5 ? "Almost There ✦" : "I love it, next →"}
+                  </button>
+                </div>
+              </>
+            ) : builderStep === 6 ? (
+              <>
+                <h3 className="builder-prompt builder-prompt--notes">Anything else on your heart?</h3>
+                <div className="builder-notes-wrap">
+                  <textarea
+                    className="form-textarea builder-notes-textarea"
+                    placeholder="This is your moment to dream freely... ✦  Tell Carl about any colors you adore or want to avoid  ✦  A special occasion or person this is for  ✦  Where it will live — a mantle, a dining table, a bedroom?  ✦  A feeling or mood you want it to evoke  ✦  Anything at all — Carl reads every word personally and pours it all into your arrangement ✦"
+                    value={builderNotes}
+                    onChange={(e) => setBuilderNotes(e.target.value)}
+                  />
+                  <p className="builder-notes-hint"><em>This step is purely optional — but the more you share, the more Carl can make it feel like it was made just for you ✦</em></p>
+                </div>
+                <div className="builder-nav">
+                  <button className="btn-outline" onClick={() => setBuilderStep(5)}>← Back</button>
+                  <button className="btn-skip" onClick={() => setBuilderStep(7)}>skip for now ✦</button>
+                  <button className="btn-primary" onClick={() => setBuilderStep(7)}>Show me my arrangement ✦</button>
+                </div>
+              </>
+            ) : (
+              <div className="builder-review">
+                <div className="builder-summary">
+                  <div className="summary-title">✦ Your Custom Arrangement</div>
+                  {BUILDER_KEYS.map((k, i) => {
+                    const selId = builderSel[k];
+                    if (!selId || selId === "__skip__") return null;
+                    const sel = BUILDER_DATA[i].find((o) => o.id === selId);
+                    if (!sel) return null;
+                    const colorLabel = builderColors[k] ? ` · ${builderColors[k]}` : "";
+                    return (
+                      <div key={k} className="summary-row">
+                        <span>{BUILDER_STEPS[i]}</span>
+                        <span>{sel.emoji} {sel.name}{colorLabel} {sel.price !== undefined ? `(+$${sel.price})` : <em className="tbd-tag">(+ TBD by weight)</em>}</span>
+                      </div>
+                    );
+                  })}
+                  {builderNotes && (
+                    <div className="summary-row summary-row--notes">
+                      <span>Notes</span>
+                      <span className="summary-notes-text">"{builderNotes}"</span>
+                    </div>
+                  )}
+                  <div className="summary-row"><span>Base price</span><span>$35</span></div>
+                  <div className="summary-total"><span>Total</span><span>${builderPrice}</span></div>
+                </div>
+                <div className="builder-nav">
+                  <button className="btn-outline" onClick={() => setBuilderStep(0)}>Start Over</button>
+                  <button className="btn-add-to-cart" onClick={addCustomToCart}>Add to Cart</button>
+                  <button className="btn-primary" onClick={buyCustom} disabled={checkingOut}>
+                    {checkingOut ? "Redirecting to Stripe…" : `Buy Now — $${builderPrice}`}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>)}
 
-/* ── RESPONSIVE ── */
-@media (max-width: 768px) {
-  .hero-content { padding: 3rem 1.5rem; }
-  .hero-floral  { font-size: 10rem; }
-  .section      { padding: 4rem 1.5rem; }
-  .nav          { padding: 0 1rem; }
-  .nav-links    { display: none; }
-  .form-row     { grid-template-columns: 1fr; }
-  .footer       { padding: 2rem 1.5rem; }
-  .hero-badges  { gap: 1rem; }
-  .builder-nav  { flex-wrap: wrap; }
-  .builder-nav .btn-primary,
-  .builder-nav .btn-add-to-cart { flex: 1; }
+          {/* ── DESCRIBE YOUR OWN ── */}
+          {builderMode === "custom" && (
+            <div className="custom-request">
+              {customForm.succeeded ? (
+                <div className="success-msg">
+                  <div className="success-icon">✿</div>
+                  <h3>Request Received!</h3>
+                  <p>Carl will review your vision and reach out within 24 hours with a quote.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="custom-request-intro">
+                    <p>Not sure where to start? No problem. Describe your dream arrangement below — the flowers, colors, style, size, occasion, or anything else on your mind. Carl will personally review your request and send you a custom quote.</p>
+                  </div>
+                  <form onSubmit={handleCustomSubmit} className="booking-form">
+                    <input type="hidden" name="request_type" value="Describe Your Own Arrangement" />
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="custom-name">Your Name</label>
+                        <input id="custom-name" name="name" className="form-input" placeholder="Jane Smith" required />
+                        <ValidationError field="name" errors={customForm.errors} className="field-error" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="custom-email">Email</label>
+                        <input id="custom-email" name="email" type="email" className="form-input" placeholder="jane@email.com" required />
+                        <ValidationError field="email" errors={customForm.errors} className="field-error" />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="custom-vision">Describe Your Arrangement</label>
+                      <textarea
+                        id="custom-vision"
+                        name="arrangement_description"
+                        className="form-textarea custom-textarea"
+                        placeholder={"Tell Carl everything! For example:\n• Focal flowers: roses, peonies, sunflowers, lilies, tulips, orchids — or something else entirely\n• Fillers: baby's breath, lavender, wildflowers, statice, or your own ideas\n• Greenery: eucalyptus, ferns, trailing ivy, succulents, or anything you love\n• Vase or container: mason jar, ceramic vase, clear glass, terracotta, or describe your own\n• Colors, style, size, occasion, where it will be displayed...\n\nThe more detail, the better — there are no wrong answers!"}
+                        required
+                      />
+                      <ValidationError field="arrangement_description" errors={customForm.errors} className="field-error" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="custom-budget">Budget (optional)</label>
+                      <input id="custom-budget" name="budget" className="form-input" placeholder="e.g. $50–$100, or no preference" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="custom-phone">Phone (optional)</label>
+                      <input id="custom-phone" name="phone" className="form-input" placeholder="(352) 555-0100" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Vase Substrate Preference</label>
+                      <p className="substrate-note">Choose what you'd like inside your vase to hold your arrangement. You may select multiple. Carl will add it after shipping to protect your arrangement.</p>
+                      <div className="substrate-grid">
+                        {SUBSTRATE_OPTIONS.map((s) => (
+                          <label key={s} className="substrate-option">
+                            <input
+                              type="checkbox"
+                              name="substrate"
+                              value={s}
+                              checked={selectedSubstrate.includes(s)}
+                              onChange={() => setSelectedSubstrate((prev) =>
+                                prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
+                              )}
+                            />
+                            <span className="chip">{s}</span>
+                          </label>
+                        ))}
+                      </div>
+                      {selectedSubstrate.length > 0 && (
+                        <input type="hidden" name="substrate_choices" value={selectedSubstrate.join(", ")} />
+                      )}
+                    </div>
+                    <ValidationError errors={customForm.errors} className="field-error" />
+                    <button type="submit" className="submit-btn" disabled={customForm.submitting}>
+                      {customForm.submitting ? "Sending…" : "✦ Send My Vision to Carl"}
+                    </button>
+                    <p className="custom-request-note">🌸 Carl will reply within 24 hours with a personal quote. No commitment required.</p>
+                  </form>
+                </>
+              )}
+            </div>
+          )}
+
+        </div>
+      </section>
+
+      {/* ── GENDER REVEAL ── */}
+      <section id="gender-reveal" className="section section--white">
+        <div className="section-header">
+          <p className="eyebrow">✦ Celebrate New Life ✦</p>
+          <h2 className="section-title">Gender Reveal <em>Arrangements</em></h2>
+          <p className="section-sub">A beautiful handcrafted floral arrangement to celebrate your little one. Carl will create a custom blue or pink design — just for you.</p>
+        </div>
+        <div className="gender-reveal-inner">
+
+          {/* Gender choice cards */}
+          <div className="gender-cards">
+            <div
+              className={`gender-card gender-card--boy ${genderChoice === "boy" ? "selected" : ""}`}
+              onClick={() => setGenderChoice("boy")}
+            >
+              <div className="gender-card-icon">👶💙</div>
+              <h3 className="gender-card-title">It's a Boy!</h3>
+              <p className="gender-card-desc">A stunning arrangement of blue & white artificial florals — roses, delphiniums, hydrangeas, and lush greenery — handcrafted by Carl to celebrate your baby boy.</p>
+              {genderChoice === "boy" && <div className="gender-selected-badge">✓ Selected</div>}
+            </div>
+            <div
+              className={`gender-card gender-card--girl ${genderChoice === "girl" ? "selected" : ""}`}
+              onClick={() => setGenderChoice("girl")}
+            >
+              <div className="gender-card-icon">👶🩷</div>
+              <h3 className="gender-card-title">It's a Girl!</h3>
+              <p className="gender-card-desc">A gorgeous arrangement of blush pink & soft cream artificial florals — peonies, roses, ranunculus, and delicate fillers — handcrafted by Carl to celebrate your baby girl.</p>
+              {genderChoice === "girl" && <div className="gender-selected-badge">✓ Selected</div>}
+            </div>
+          </div>
+
+          {/* Step-by-step builder — shown after gender is chosen */}
+          {genderChoice && (
+            <div className="gender-builder-wrap">
+
+              {/* Visual banner */}
+              <div className="gender-visual-banner" style={{background: genderChoice === "boy" ? "linear-gradient(135deg,#d0e8f8,#e8f2fc)" : "linear-gradient(135deg,#f8d0e4,#fce8f2)"}}>
+                <span className="gender-visual-icon">{genderChoice === "boy" ? "💙🌿🤍" : "🩷🌸🤍"}</span>
+                <div className="gender-visual-text">
+                  <h4>{genderChoice === "boy" ? "A Blue Floral Masterpiece" : "A Pink Floral Masterpiece"}</h4>
+                  <p>{genderChoice === "boy"
+                    ? "Carl will handcraft a stunning arrangement in cool blues, crisp whites & lush greens — delphiniums, hydrangeas, white roses & eucalyptus — celebrating your baby boy in timeless style."
+                    : "Carl will handcraft a breathtaking arrangement in blush pinks, soft creams & delicate whites — peonies, ranunculus, roses & baby's breath — celebrating your baby girl with elegance."
+                  }</p>
+                </div>
+              </div>
+
+              {genderForm.succeeded ? (
+                <div className="success-msg" style={{marginTop:"2rem"}}>
+                  <div className="success-icon">{genderChoice === "boy" ? "💙" : "🩷"}</div>
+                  <h3>Request Received!</h3>
+                  <p>Carl will review your details and send you a personal quote within 24 hours. Congratulations!</p>
+                </div>
+              ) : (
+                <>
+                  {/* Step progress bar */}
+                  <div className="builder-steps" style={{marginTop:"2rem"}}>
+                    {GENDER_STEPS.map((s, i) => (
+                      <div key={s} className={`builder-step ${genderStep === i ? "active" : genderSel[GENDER_KEYS[i]] ? "done" : ""}`}
+                        style={genderStep === i ? {background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"} : {}}>
+                        <span className="step-num">{genderSel[GENDER_KEYS[i]] && genderSel[GENDER_KEYS[i]] !== "__skip__" ? "✓" : i + 1}</span>
+                        {s}
+                      </div>
+                    ))}
+                    <div className={`builder-step ${genderStep === 5 ? "active" : genderNotes ? "done" : ""}`}
+                      style={genderStep === 5 ? {background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"} : {}}>
+                      <span className="step-num">{genderNotes ? "✓" : 6}</span>
+                      Notes
+                    </div>
+                  </div>
+
+                  {/* Steps 0-4: option grids */}
+                  {genderStep < 5 && (
+                    <>
+                      <h3 className="builder-prompt">Choose your {GENDER_STEPS[genderStep]}</h3>
+                      <div className={`options-grid ${
+                        GENDER_DATA[genderStep].length === 4 ? "options-grid--2col" :
+                        GENDER_DATA[genderStep].length > 8 ? "options-grid--4col" : ""
+                      }`}>
+                        {GENDER_DATA[genderStep].map((opt) => (
+                          <div key={opt.id}
+                            className={`option-card ${genderSel[GENDER_KEYS[genderStep]] === opt.id ? "selected" : ""}`}
+                            style={genderSel[GENDER_KEYS[genderStep]] === opt.id ? {borderColor: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"} : {}}
+                            onClick={() => setGenderSel((g) => ({ ...g, [GENDER_KEYS[genderStep]]: opt.id }))}>
+                            <span className="option-emoji">{opt.emoji}</span>
+                            <div className="option-name">{opt.name}</div>
+                            <div className="option-sub">{opt.sub}</div>
+                            <div className="option-price">
+                              {opt.price !== undefined ? `+$${opt.price}` : <span className="option-price-tbd">+ TBD by weight</span>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="builder-nav">
+                        <button className="btn-outline" onClick={() => { if (genderStep === 0) { setGenderChoice(null); setGenderStep(0); setGenderSel({ filler:null, greenery:null, substrate:null, vase:null, size:null }); setGenderNotes(""); } else setGenderStep((s) => s - 1); }} >← Back</button>
+                        <button className="btn-skip" onClick={() => { setGenderSel((g) => ({ ...g, [GENDER_KEYS[genderStep]]: "__skip__" })); setGenderStep((s) => s + 1); }}>not for me ✦</button>
+                        <button className="btn-primary"
+                          style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"}}
+                          onClick={() => setGenderStep((s) => s + 1)}>
+                          {genderStep === 4 ? "Almost There ✦" : "I love it, next →"}
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Step 5: Notes */}
+                  {genderStep === 5 && (
+                    <>
+                      <h3 className="builder-prompt builder-prompt--notes">Anything else on your heart?</h3>
+                      <div className="builder-notes-wrap">
+                        <textarea
+                          className="form-textarea builder-notes-textarea"
+                          placeholder={"This is your moment to dream freely... ✦  Share any color preferences or shades you adore  ✦  The occasion or person this is for  ✦  Where it will live in your home  ✦  A feeling or mood you'd love it to evoke  ✦  Anything at all — Carl reads every word personally ✦"}
+                          value={genderNotes}
+                          onChange={(e) => setGenderNotes(e.target.value)}
+                        />
+                        <p className="builder-notes-hint"><em>This step is purely optional — but the more you share, the more Carl can make it feel like it was made just for you ✦</em></p>
+                      </div>
+                      <div className="builder-nav">
+                        <button className="btn-outline" onClick={() => setGenderStep(4)}>← Back</button>
+                        <button className="btn-skip" onClick={() => setGenderStep(6)}>skip for now ✦</button>
+                        <button className="btn-primary"
+                          style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"}}
+                          onClick={() => setGenderStep(6)}>Show me my arrangement ✦</button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Step 6: Contact + Review + Submit */}
+                  {genderStep === 6 && (
+                    <div className="builder-review" style={{marginTop:"2rem"}}>
+                      <div className="builder-summary">
+                        <div className="summary-title">{genderChoice === "boy" ? "💙" : "🩷"} Your Gender Reveal Arrangement</div>
+                        <div className="summary-row"><span>Theme</span><span>{genderChoice === "boy" ? "Baby Boy — Blue & White" : "Baby Girl — Pink & Cream"}</span></div>
+                        {GENDER_KEYS.map((k, i) => {
+                          const selId = genderSel[k];
+                          if (!selId || selId === "__skip__") return null;
+                          const sel = GENDER_DATA[i].find((o) => o.id === selId);
+                          return sel ? (
+                            <div key={k} className="summary-row">
+                              <span>{GENDER_STEPS[i]}</span>
+                              <span>{sel.emoji} {sel.name} {sel.price !== undefined ? `(+$${sel.price})` : <em className="tbd-tag">(+ TBD by weight)</em>}</span>
+                            </div>
+                          ) : null;
+                        })}
+                        {genderNotes && (
+                          <div className="summary-row summary-row--notes">
+                            <span>Notes</span>
+                            <span className="summary-notes-text">"{genderNotes}"</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Contact fields */}
+                      <div className="gender-contact-fields">
+                        <h4 className="gender-contact-title">✦ Almost there — where should Carl send your quote?</h4>
+                        <div className="form-row">
+                          <div className="form-group">
+                            <label className="form-label">Your Name</label>
+                            <input className="form-input" placeholder="Jane Smith" required value={genderContact.name} onChange={(e) => setGenderContact((c) => ({...c, name: e.target.value}))} />
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">Email</label>
+                            <input className="form-input" type="email" placeholder="jane@email.com" required value={genderContact.email} onChange={(e) => setGenderContact((c) => ({...c, email: e.target.value}))} />
+                          </div>
+                        </div>
+                        <div className="form-row">
+                          <div className="form-group">
+                            <label className="form-label">Phone (optional)</label>
+                            <input className="form-input" placeholder="(352) 555-0100" value={genderContact.phone} onChange={(e) => setGenderContact((c) => ({...c, phone: e.target.value}))} />
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">Needed By (optional)</label>
+                            <input className="form-input" type="date" value={genderContact.date} onChange={(e) => setGenderContact((c) => ({...c, date: e.target.value}))} />
+                          </div>
+                        </div>
+                      </div>
+
+                      <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const data = new FormData();
+                        data.append("request_type", "Gender Reveal Arrangement");
+                        data.append("gender_choice", genderChoice === "boy" ? "Boy (Blue)" : "Girl (Pink)");
+                        data.append("name", genderContact.name);
+                        data.append("email", genderContact.email);
+                        if (genderContact.phone) data.append("phone", genderContact.phone);
+                        if (genderContact.date)  data.append("needed_by", genderContact.date);
+                        GENDER_KEYS.forEach((k, i) => {
+                          const selId = genderSel[k];
+                          if (!selId || selId === "__skip__") return;
+                          const sel = GENDER_DATA[i].find((o) => o.id === selId);
+                          if (sel) data.append(GENDER_STEPS[i].toLowerCase(), sel.name);
+                        });
+                        if (genderNotes) data.append("additional_details", genderNotes);
+                        handleGenderSubmit(e);
+                      }} className="booking-form" style={{marginTop:"1rem"}}>
+                        <input type="hidden" name="request_type" value="Gender Reveal Arrangement" />
+                        <input type="hidden" name="gender_choice" value={genderChoice === "boy" ? "Boy (Blue)" : "Girl (Pink)"} />
+                        <input type="hidden" name="name" value={genderContact.name} />
+                        <input type="hidden" name="email" value={genderContact.email} />
+                        <input type="hidden" name="phone" value={genderContact.phone} />
+                        <input type="hidden" name="needed_by" value={genderContact.date} />
+                        {GENDER_KEYS.map((k, i) => {
+                          const selId = genderSel[k];
+                          if (!selId || selId === "__skip__") return null;
+                          const sel = GENDER_DATA[i].find((o) => o.id === selId);
+                          return sel ? <input key={k} type="hidden" name={GENDER_STEPS[i].toLowerCase()} value={sel.name} /> : null;
+                        })}
+                        {genderNotes && <input type="hidden" name="additional_details" value={genderNotes} />}
+                        <div className="builder-nav" style={{marginTop:"1.5rem"}}>
+                          <button type="button" className="btn-outline" onClick={() => setGenderStep(5)}>← Back</button>
+                          <button type="button" className="btn-outline" onClick={() => { setGenderChoice(null); setGenderStep(0); setGenderSel({ filler:null, greenery:null, substrate:null, vase:null, size:null }); setGenderNotes(""); setGenderContact({ name:"", email:"", phone:"", date:"" }); }}>Start Over</button>
+                          <button type="submit" className="submit-btn gender-submit"
+                            disabled={genderForm.submitting || !genderContact.name || !genderContact.email}
+                            style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a", flex:1, marginTop:0}}>
+                            {genderForm.submitting ? "Sending…" : `✦ Request My ${genderChoice === "boy" ? "💙 Boy" : "🩷 Girl"} Arrangement Quote`}
+                          </button>
+                        </div>
+                        <p className="custom-request-note">🌸 Carl will reply within 24 hours with a personal quote. No commitment required.</p>
+                      </form>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── BRIDAL ── */}
+      <section id="bridal" className="section section--tinted">
+        <div className="section-header">
+          <p className="eyebrow">✦ Forever Begins Here ✦</p>
+          <h2 className="section-title">Bridal <em>Collections</em></h2>
+          <p className="section-sub">Handcrafted artificial arrangements that last long after the wedding day — bouquets, centerpieces & more, designed by Carl.</p>
+        </div>
+        <div className="builder-inner">
+          <div className="builder-tabs">
+            <button className={`builder-tab ${bridalTab === "preset" ? "active" : ""}`} onClick={() => setBridalTab("preset")}>✦ Preset Collections</button>
+            <button className={`builder-tab ${bridalTab === "custom" ? "active" : ""}`} onClick={() => setBridalTab("custom")}>✍ Custom Bridal Request</button>
+          </div>
+
+          {bridalTab === "preset" && (
+            <div className="portfolio-grid">
+              {BRIDAL_ARRANGEMENTS.map((a) => (
+                <div key={a.id} className="portfolio-card">
+                  <div className="portfolio-img" style={{background: "linear-gradient(135deg, #fce8f2, #f8f0e8)"}}><span>{a.emoji}</span></div>
+                  <div className="portfolio-info">
+                    <h3 className="portfolio-name">{a.name}</h3>
+                    <p className="portfolio-desc">{a.desc}</p>
+                    <div className="portfolio-tags">{a.tags.map((t) => <span key={t} className="tag">{t}</span>)}</div>
+                    <div className="portfolio-price">${a.price}</div>
+                    <div className="card-btns">
+                      <button className="add-to-cart" onClick={() => addToCart(a)}>Add to Cart</button>
+                      <button className="buy-now" onClick={() => scrollTo("bridal") || setBridalTab("custom")}>Customize</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {bridalTab === "custom" && (
+            <div className="custom-request">
+              {bridalForm.succeeded ? (
+                <div className="success-msg">
+                  <div className="success-icon">💐</div>
+                  <h3>Request Received!</h3>
+                  <p>Carl will review your bridal vision and send a personal quote within 24 hours. Congratulations on your upcoming wedding!</p>
+                </div>
+              ) : (
+                <>
+                  <div className="custom-request-intro">
+                    <p>Every wedding is unique. Describe your dream bridal arrangement and Carl will handcraft something truly one-of-a-kind — yours to keep forever.</p>
+                  </div>
+                  <form onSubmit={handleBridalSubmit} className="booking-form">
+                    <input type="hidden" name="request_type" value="Custom Bridal Arrangement" />
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="br-name">Your Name</label>
+                        <input id="br-name" name="name" className="form-input" placeholder="Jane Smith" required />
+                        <ValidationError field="name" errors={bridalForm.errors} className="field-error" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="br-email">Email</label>
+                        <input id="br-email" name="email" type="email" className="form-input" placeholder="jane@email.com" required />
+                        <ValidationError field="email" errors={bridalForm.errors} className="field-error" />
+                      </div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="br-phone">Phone (optional)</label>
+                        <input id="br-phone" name="phone" className="form-input" placeholder="(352) 555-0100" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="br-date">Wedding Date</label>
+                        <input id="br-date" name="wedding_date" type="date" className="form-input" />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">What are you looking for?</label>
+                      <div className="occasion-chips">
+                        {["Bridal Bouquet","Bridesmaid Bouquets","Centerpieces","Ceremony Arch","Reception Décor","Flower Girl Basket","Boutonnieres","Full Package"].map((o) => (
+                          <label key={o} className="chip-radio">
+                            <input type="checkbox" name="bridal_items" value={o} style={{display:"none"}} />
+                            <span className="chip">{o}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Vase / Container Style</label>
+                      <div className="gender-vase-grid">
+                        {VASE_OPTIONS.map((v) => (
+                          <label key={v.id} className="gender-vase-option">
+                            <input type="radio" name="vase_choice" value={`${v.name} — ${v.sub}`} />
+                            <div className="gender-vase-card">
+                              <span className="option-emoji">{v.emoji}</span>
+                              <div className="option-name">{v.name}</div>
+                              <div className="option-sub">{v.sub}</div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="br-vision">Describe Your Bridal Vision</label>
+                      <textarea id="br-vision" name="bridal_vision" className="form-textarea custom-textarea"
+                        placeholder="Colors, flowers, style, theme, number of arrangements, budget range, inspiration photos you can describe..." />
+                      <ValidationError field="bridal_vision" errors={bridalForm.errors} className="field-error" />
+                    </div>
+                    <ValidationError errors={bridalForm.errors} className="field-error" />
+                    <button type="submit" className="submit-btn" disabled={bridalForm.submitting}>
+                      {bridalForm.submitting ? "Sending…" : "✦ Send My Bridal Vision to Carl"}
+                    </button>
+                    <p className="custom-request-note">💐 Carl will reply within 24 hours with a personal quote. No commitment required.</p>
+                  </form>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section id="booking" className="section section--tinted">
+        <div className="section-header">
+          <p className="eyebrow">✦ Work with Carl ✦</p>
+          <h2 className="section-title">Book a <em>Consultation</em></h2>
+          <p className="section-sub">Have a vision? Let's talk. Carl personally designs every arrangement.</p>
+        </div>
+        <div className="booking-inner">
+          {formState.succeeded ? (
+            <div className="success-msg">
+              <div className="success-icon">✿</div>
+              <h3>Request Received!</h3>
+              <p>Carl will be in touch within 24 hours. Thank you!</p>
+            </div>
+          ) : (
+            <form onSubmit={handleBookingSubmit} className="booking-form">
+              <input type="hidden" name="occasion" value={bookingOccasion.join(", ")} />
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="name">Your Name</label>
+                  <input id="name" name="name" className="form-input" placeholder="Jane Smith" required />
+                  <ValidationError field="name" errors={formState.errors} className="field-error" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="email">Email</label>
+                  <input id="email" name="email" type="email" className="form-input" placeholder="jane@email.com" required />
+                  <ValidationError field="email" errors={formState.errors} className="field-error" />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="phone">Phone (optional)</label>
+                  <input id="phone" name="phone" className="form-input" placeholder="(352) 555-0100" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="date">Preferred Date</label>
+                  <input id="date" name="date" type="date" className="form-input" />
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Occasion</label>
+                <div className="occasion-chips">
+                  {OCCASIONS.map((o) => (
+                    <button type="button" key={o}
+                      className={`chip ${bookingOccasion.includes(o) ? "selected" : ""}`}
+                      onClick={() => setBookingOccasion((oc) => oc.includes(o) ? oc.filter((x) => x !== o) : [...oc, o])}>
+                      {o}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="notes">Tell Carl about your vision</label>
+                <textarea id="notes" name="notes" className="form-textarea" placeholder="Colors, size, style, where it will be displayed..." />
+                <ValidationError field="notes" errors={formState.errors} className="field-error" />
+              </div>
+              <ValidationError errors={formState.errors} className="field-error" />
+              <button type="submit" className="submit-btn" disabled={formState.submitting}>
+                {formState.submitting ? "Sending…" : "✦ Send Consultation Request"}
+              </button>
+              <div className="shipping-disclaimer" id="disclaimer">
+                <h4 className="disclaimer-title">✨ A Little Love Note About Your Arrangement</h4>
+                <p className="shipping-free-note">🚚 <strong>Shipping is always free</strong> — because beautiful things should arrive at your door without any extra cost.</p>
+                <p>Your flowers have traveled to reach you — here's how to help them settle in and truly shine:</p>
+                <ul>
+                  <li><strong>🌸 Give them a little fluff!</strong> Artificial blooms are adventurous travelers, but they may arrive a touch compressed from their journey. Simply take a moment to gently coax each petal and stem back to life — think of it as a welcome-home hug for your flowers. Allow <strong>48–72 hours</strong> for everything to gracefully fall into its full, breathtaking shape.</li>
+                  <li><strong>💎 Your substrate arrives separately — by design!</strong> To keep your vessel safe and your blooms pristine during shipping, the vase filling (rocks, marbles, river stones, peat moss, etc.) is packed separately and added by you upon arrival. This little extra step protects your arrangement from shifting weight and ensures nothing gets damaged in transit. Think of it as the final, personal touch that makes it truly yours.</li>
+                  <li><strong>📦 Unbox with intention!</strong> Open your package slowly and lovingly — avoid shaking or flipping the box. Your arrangement was packed with care and deserves a gentle, graceful grand entrance.</li>
+                </ul>
+                <p className="disclaimer-footer">✿ Questions about setup, care, or anything at all? Carl personally replies to every message — don't hesitate to reach out!</p>
+              </div>
+            </form>
+          )}
+        </div>
+      </section>
+
+      <footer className="footer">
+        <h3>Florals <em>Forever</em></h3>
+        <p>Handcrafted by Carl · Gainesville, Florida</p>
+        <p className="footer-tagline">✿ Beauty that never fades ✿</p>
+        <p className="footer-copy">© 2026 Florals Forever. All arrangements handmade with love.</p>
+      </footer>
+
+      {cartOpen && (
+        <div className="modal-overlay" onClick={() => setCartOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Your Cart</h2>
+              <button className="modal-close" onClick={() => setCartOpen(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              {cart.length === 0 ? (
+                <p className="cart-empty">Your cart is empty. Browse the collection!</p>
+              ) : (
+                <>
+                  {cart.map((item) => (
+                    <div key={item.cartId} className="cart-item">
+                      <span className="cart-item-name">{item.name}</span>
+                      <span className="cart-item-right">
+                        <span className="cart-item-price">${item.price}</span>
+                        <button className="cart-remove" onClick={() => removeFromCart(item.cartId)}>✕</button>
+                      </span>
+                    </div>
+                  ))}
+                  <div className="cart-total">Total: ${cartTotal}</div>
+                  <button className="submit-btn" onClick={handleCheckout} disabled={checkingOut}>
+                    {checkingOut ? "Redirecting to Stripe…" : `✦ Pay Securely — $${cartTotal}`}
+                  </button>
+                  <p className="stripe-note">🔒 Secure checkout via Stripe. Accepts all major cards, Apple Pay & Google Pay.</p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
 }
