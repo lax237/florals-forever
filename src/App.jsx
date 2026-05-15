@@ -84,10 +84,6 @@ const FLOWER_COLORS = {
 };
 
 
-const GENDER_STEPS = ["Filler", "Greenery", "Substrate", "Vase", "Size"];
-const GENDER_DATA  = [FILLER_OPTIONS, GREENERY_OPTIONS, SUBSTRATE_OPTIONS, VASE_OPTIONS, SIZE_OPTIONS];
-const GENDER_KEYS  = ["filler", "greenery", "substrate", "vase", "size"];
-
 const OCCASIONS = ["Birthday", "Anniversary", "Wedding", "Home Décor", "Business / Office", "Sympathy", "Just Because", "Holiday"];
 
 const SIZE_OPTIONS = [
@@ -100,6 +96,10 @@ const SIZE_OPTIONS = [
 const BUILDER_STEPS = ["Focal Flower", "Filler", "Greenery", "Substrate", "Vase", "Size"];
 const BUILDER_DATA  = [FOCAL_OPTIONS, FILLER_OPTIONS, GREENERY_OPTIONS, SUBSTRATE_OPTIONS, VASE_OPTIONS, SIZE_OPTIONS];
 const BUILDER_KEYS  = ["focal", "filler", "greenery", "substrate", "vase", "size"];
+
+const GENDER_STEPS = ["Filler", "Greenery", "Substrate", "Vase", "Size"];
+const GENDER_DATA  = [FILLER_OPTIONS, GREENERY_OPTIONS, SUBSTRATE_OPTIONS, VASE_OPTIONS, SIZE_OPTIONS];
+const GENDER_KEYS  = ["filler", "greenery", "substrate", "vase", "size"];
 
 export default function App() {
   const [cart, setCart]                       = useState([]);
