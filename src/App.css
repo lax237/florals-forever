@@ -678,6 +678,22 @@ body {
   .builder-notes-wrap { max-width: 100%; }
 }
 
+
+/* ── GENDER BUILDER ── */
+.gender-builder-wrap {
+  max-width: 900px; margin: 0 auto;
+}
+.gender-contact-fields {
+  background: var(--cream); border-radius: 7px;
+  padding: 1.5rem; margin-top: 1.5rem;
+  border: 1px solid rgba(196,162,101,0.2);
+}
+.gender-contact-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-weight: 400; font-style: italic;
+  color: var(--rose); margin-bottom: 1rem;
+}
+
 /* ── FOOTER ── */
 .footer {
   background: var(--deep); color: rgba(250,246,240,0.6);
