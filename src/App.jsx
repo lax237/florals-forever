@@ -264,7 +264,7 @@ export default function App() {
             ))}
           </ul>
           <button className="nav-disclaimer" onClick={() => scrollTo("disclaimer")} title="Shipping & Care Info">
-            ✨ Care Guide
+            ✨ Care Guide ✨
           </button>
           <button className="nav-cart" onClick={() => setCartOpen(true)}>
             🛒 Cart ({cart.length})
@@ -405,7 +405,7 @@ export default function App() {
                 <div className="builder-nav">
                   <button className="btn-outline" onClick={() => setBuilderStep((s) => Math.max(0, s - 1))} disabled={builderStep === 0}>← Back</button>
                   <button className="btn-skip" onClick={() => { setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: "__skip__" })); setBuilderStep((s) => s + 1); }}>
-                    ✦ not for me ✦
+                    not for me
                   </button>
                   <button className="btn-primary" onClick={() => setBuilderStep((s) => s + 1)}>
                     {builderStep === 5 ? "Almost There ✦" : "I love it, next →"}
@@ -426,7 +426,7 @@ export default function App() {
                 </div>
                 <div className="builder-nav">
                   <button className="btn-outline" onClick={() => setBuilderStep(5)}>← Back</button>
-                  <button className="btn-skip" onClick={() => setBuilderStep(7)}>✦ skip for now ✦</button>
+                  <button className="btn-skip" onClick={() => setBuilderStep(7)}>skip for now</button>
                   <button className="btn-primary" onClick={() => setBuilderStep(7)}>Show me my arrangement ✦</button>
                 </div>
               </>
@@ -646,7 +646,7 @@ export default function App() {
                       </div>
                       <div className="builder-nav">
                         <button className="btn-outline" onClick={() => { if (genderStep === 0) { setGenderChoice(null); setGenderStep(0); setGenderSel({ filler:null, greenery:null, substrate:null, vase:null, size:null }); setGenderNotes(""); } else setGenderStep((s) => s - 1); }} >← Back</button>
-                        <button className="btn-skip" onClick={() => { setGenderSel((g) => ({ ...g, [GENDER_KEYS[genderStep]]: "__skip__" })); setGenderStep((s) => s + 1); }}>✦ not for me ✦</button>
+                        <button className="btn-skip" onClick={() => { setGenderSel((g) => ({ ...g, [GENDER_KEYS[genderStep]]: "__skip__" })); setGenderStep((s) => s + 1); }}>not for me</button>
                         <button className="btn-primary"
                           style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"}}
                           onClick={() => setGenderStep((s) => s + 1)}>
@@ -671,7 +671,7 @@ export default function App() {
                       </div>
                       <div className="builder-nav">
                         <button className="btn-outline" onClick={() => setGenderStep(4)}>← Back</button>
-                        <button className="btn-skip" onClick={() => setGenderStep(6)}>✦ skip for now ✦</button>
+                        <button className="btn-skip" onClick={() => setGenderStep(6)}>skip for now</button>
                         <button className="btn-primary"
                           style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"}}
                           onClick={() => setGenderStep(6)}>Show me my arrangement ✦</button>
@@ -945,7 +945,7 @@ export default function App() {
                 <p>Your flowers have traveled to reach you — here's how to help them settle in and truly shine:</p>
                 <ul>
                   <li><strong>🌸 Give them a little fluff!</strong> Artificial blooms are adventurous travelers, but they may arrive a touch compressed from their journey. Simply take a moment to gently coax each petal and stem back to life — think of it as a welcome-home hug for your flowers. Allow <strong>48–72 hours</strong> for everything to gracefully fall into its full, breathtaking shape.</li>
-                  <li><strong>💎 Your substrate arrives separately — by design!</strong> To keep your vessel safe and your blooms pristine during shipping, the vase filling (rocks, marbles, river stones, peat moss, etc.) is packed separately and added by you upon arrival. This little extra step protects your arrangement from shifting weight and ensures nothing gets damaged in transit. Think of it as the final, personal touch that makes it truly yours.</li>
+                  <li><strong>🪨 Your substrate arrives separately — by design!</strong> To keep your vessel safe and your blooms pristine during shipping, the vase filling (rocks, marbles, river stones, peat moss, etc.) is packed separately and added by you upon arrival. This little extra step protects your arrangement from shifting weight and ensures nothing gets damaged in transit. Think of it as the final, personal touch that makes it truly yours.</li>
                   <li><strong>📦 Unbox with intention!</strong> Open your package slowly and lovingly — avoid shaking or flipping the box. Your arrangement was packed with care and deserves a gentle, graceful grand entrance.</li>
                 </ul>
                 <p className="disclaimer-footer">✿ Questions about setup, care, or anything at all? Carl personally replies to every message — don't hesitate to reach out!</p>
