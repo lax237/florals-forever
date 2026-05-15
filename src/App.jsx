@@ -83,6 +83,11 @@ const FLOWER_COLORS = {
   succulent:   ["Green Mix", "Purple-Tipped", "Blue-Green", "Red-Tipped", "Dusty Rose", "Silver", "Sage", "Burgundy Edges", "Teal", "Pale Mint"],
 };
 
+
+const GENDER_STEPS = ["Filler", "Greenery", "Substrate", "Vase", "Size"];
+const GENDER_DATA  = [FILLER_OPTIONS, GREENERY_OPTIONS, SUBSTRATE_OPTIONS, VASE_OPTIONS, SIZE_OPTIONS];
+const GENDER_KEYS  = ["filler", "greenery", "substrate", "vase", "size"];
+
 const OCCASIONS = ["Birthday", "Anniversary", "Wedding", "Home Décor", "Business / Office", "Sympathy", "Just Because", "Holiday"];
 
 const SIZE_OPTIONS = [
@@ -240,6 +245,10 @@ export default function App() {
   const [customForm, handleCustomSubmit]  = useForm("xpqbelga"); // reuses same Formspree endpoint
   const [genderForm, handleGenderSubmit]  = useForm("xpqbelga"); // gender reveal requests
   const [genderChoice, setGenderChoice]   = useState(null);      // "boy" | "girl" | null
+  const [genderStep, setGenderStep]       = useState(0);         // 0=filler,1=greenery,2=substrate,3=vase,4=size,5=notes,6=review
+  const [genderSel, setGenderSel]         = useState({ filler: null, greenery: null, substrate: null, vase: null, size: null });
+  const [genderNotes, setGenderNotes]     = useState("");
+  const [genderContact, setGenderContact] = useState({ name:"", email:"", phone:"", date:"" });
   const [bridalForm, handleBridalSubmit]  = useForm("xpqbelga"); // bridal requests
   const [bridalTab, setBridalTab]         = useState("preset");  // "preset" | "custom"
   const [selectedSubstrate, setSelectedSubstrate] = useState([]);
@@ -573,102 +582,197 @@ export default function App() {
             </div>
           </div>
 
-          {/* Request form — shown after a choice is made */}
+          {/* Step-by-step builder — shown after gender is chosen */}
           {genderChoice && (
-            <div className="gender-form-wrap">
-              <div className="gender-visual-prompt">
-                <div className="gender-visual-banner" style={{background: genderChoice === "boy" ? "linear-gradient(135deg,#d0e8f8,#e8f2fc)" : "linear-gradient(135deg,#f8d0e4,#fce8f2)"}}>
-                  <span className="gender-visual-icon">{genderChoice === "boy" ? "💙🌿🤍" : "🩷🌸🤍"}</span>
-                  <div className="gender-visual-text">
-                    <h4>{genderChoice === "boy" ? "A Blue Floral Masterpiece" : "A Pink Floral Masterpiece"}</h4>
-                    <p>{genderChoice === "boy"
-                      ? "Carl will handcraft a stunning arrangement in cool blues, crisp whites & lush greens — delphiniums, hydrangeas, white roses & eucalyptus — celebrating your baby boy in timeless style."
-                      : "Carl will handcraft a breathtaking arrangement in blush pinks, soft creams & delicate whites — peonies, ranunculus, roses & baby's breath — celebrating your baby girl with elegance."
-                    }</p>
-                    <p className="gender-visual-cta">✦ Use the form below to describe any extra details, choose your vase, and let Carl know your vision!</p>
-                  </div>
+            <div className="gender-builder-wrap">
+
+              {/* Visual banner */}
+              <div className="gender-visual-banner" style={{background: genderChoice === "boy" ? "linear-gradient(135deg,#d0e8f8,#e8f2fc)" : "linear-gradient(135deg,#f8d0e4,#fce8f2)"}}>
+                <span className="gender-visual-icon">{genderChoice === "boy" ? "💙🌿🤍" : "🩷🌸🤍"}</span>
+                <div className="gender-visual-text">
+                  <h4>{genderChoice === "boy" ? "A Blue Floral Masterpiece" : "A Pink Floral Masterpiece"}</h4>
+                  <p>{genderChoice === "boy"
+                    ? "Carl will handcraft a stunning arrangement in cool blues, crisp whites & lush greens — delphiniums, hydrangeas, white roses & eucalyptus — celebrating your baby boy in timeless style."
+                    : "Carl will handcraft a breathtaking arrangement in blush pinks, soft creams & delicate whites — peonies, ranunculus, roses & baby's breath — celebrating your baby girl with elegance."
+                  }</p>
                 </div>
               </div>
+
               {genderForm.succeeded ? (
-                <div className="success-msg">
+                <div className="success-msg" style={{marginTop:"2rem"}}>
                   <div className="success-icon">{genderChoice === "boy" ? "💙" : "🩷"}</div>
                   <h3>Request Received!</h3>
                   <p>Carl will review your details and send you a personal quote within 24 hours. Congratulations!</p>
                 </div>
               ) : (
                 <>
-                  <div className="gender-form-header">
-                    <h3>Customize Your <em>{genderChoice === "boy" ? "Boy" : "Girl"}</em> Arrangement</h3>
-                    <p>Tell Carl the details and he'll send you a custom quote.</p>
+                  {/* Step progress bar */}
+                  <div className="builder-steps" style={{marginTop:"2rem"}}>
+                    {GENDER_STEPS.map((s, i) => (
+                      <div key={s} className={`builder-step ${genderStep === i ? "active" : genderSel[GENDER_KEYS[i]] ? "done" : ""}`}
+                        style={genderStep === i ? {background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"} : {}}>
+                        <span className="step-num">{genderSel[GENDER_KEYS[i]] && genderSel[GENDER_KEYS[i]] !== "__skip__" ? "✓" : i + 1}</span>
+                        {s}
+                      </div>
+                    ))}
+                    <div className={`builder-step ${genderStep === 5 ? "active" : genderNotes ? "done" : ""}`}
+                      style={genderStep === 5 ? {background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"} : {}}>
+                      <span className="step-num">{genderNotes ? "✓" : 6}</span>
+                      Notes
+                    </div>
                   </div>
-                  <form onSubmit={handleGenderSubmit} className="booking-form">
-                    <input type="hidden" name="request_type" value="Gender Reveal Arrangement" />
-                    <input type="hidden" name="gender_choice" value={genderChoice === "boy" ? "Boy (Blue)" : "Girl (Pink)"} />
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label className="form-label" htmlFor="gr-name">Your Name</label>
-                        <input id="gr-name" name="name" className="form-input" placeholder="Jane Smith" required />
-                        <ValidationError field="name" errors={genderForm.errors} className="field-error" />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label" htmlFor="gr-email">Email</label>
-                        <input id="gr-email" name="email" type="email" className="form-input" placeholder="jane@email.com" required />
-                        <ValidationError field="email" errors={genderForm.errors} className="field-error" />
-                      </div>
-                    </div>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label className="form-label" htmlFor="gr-phone">Phone (optional)</label>
-                        <input id="gr-phone" name="phone" className="form-input" placeholder="(352) 555-0100" />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label" htmlFor="gr-date">Needed By (optional)</label>
-                        <input id="gr-date" name="needed_by" type="date" className="form-input" />
-                      </div>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Vase / Container Style</label>
-                      <div className="gender-vase-grid">
-                        {VASE_OPTIONS.map((v) => (
-                          <label key={v.id} className="gender-vase-option">
-                            <input type="radio" name="vase_choice" value={`${v.name} — ${v.sub}`} required />
-                            <div className="gender-vase-card">
-                              <span className="option-emoji">{v.emoji}</span>
-                              <div className="option-name">{v.name}</div>
-                              <div className="option-sub">{v.sub}</div>
+
+                  {/* Steps 0-4: option grids */}
+                  {genderStep < 5 && (
+                    <>
+                      <h3 className="builder-prompt">Choose your {GENDER_STEPS[genderStep]}</h3>
+                      <div className={`options-grid ${
+                        GENDER_DATA[genderStep].length === 4 ? "options-grid--2col" :
+                        GENDER_DATA[genderStep].length > 8 ? "options-grid--4col" : ""
+                      }`}>
+                        {GENDER_DATA[genderStep].map((opt) => (
+                          <div key={opt.id}
+                            className={`option-card ${genderSel[GENDER_KEYS[genderStep]] === opt.id ? "selected" : ""}`}
+                            style={genderSel[GENDER_KEYS[genderStep]] === opt.id ? {borderColor: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"} : {}}
+                            onClick={() => setGenderSel((g) => ({ ...g, [GENDER_KEYS[genderStep]]: opt.id }))}>
+                            <span className="option-emoji">{opt.emoji}</span>
+                            <div className="option-name">{opt.name}</div>
+                            <div className="option-sub">{opt.sub}</div>
+                            <div className="option-price">
+                              {opt.price !== undefined ? `+$${opt.price}` : <span className="option-price-tbd">+ TBD by weight</span>}
                             </div>
-                          </label>
+                          </div>
                         ))}
                       </div>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label" htmlFor="gr-size">Arrangement Size</label>
-                      <div className="occasion-chips">
-                        {["Small (tabletop)", "Medium (centerpiece)", "Large (statement piece)", "Extra Large"].map((s) => (
-                          <label key={s} className="chip-radio">
-                            <input type="radio" name="size" value={s} required style={{display:"none"}} />
-                            <span className="chip">{s}</span>
-                          </label>
-                        ))}
+                      <div className="builder-nav">
+                        <button className="btn-outline" onClick={() => { if (genderStep === 0) { setGenderChoice(null); setGenderStep(0); setGenderSel({ filler:null, greenery:null, substrate:null, vase:null, size:null }); setGenderNotes(""); } else setGenderStep((s) => s - 1); }} >← Back</button>
+                        <button className="btn-skip" onClick={() => { setGenderSel((g) => ({ ...g, [GENDER_KEYS[genderStep]]: "__skip__" })); setGenderStep((s) => s + 1); }}>not for me ✦</button>
+                        <button className="btn-primary"
+                          style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"}}
+                          onClick={() => setGenderStep((s) => s + 1)}>
+                          {genderStep === 4 ? "Almost There ✦" : "I love it, next →"}
+                        </button>
                       </div>
+                    </>
+                  )}
+
+                  {/* Step 5: Notes */}
+                  {genderStep === 5 && (
+                    <>
+                      <h3 className="builder-prompt builder-prompt--notes">Anything else on your heart?</h3>
+                      <div className="builder-notes-wrap">
+                        <textarea
+                          className="form-textarea builder-notes-textarea"
+                          placeholder={"This is your moment to dream freely... ✦  Share any color preferences or shades you adore  ✦  The occasion or person this is for  ✦  Where it will live in your home  ✦  A feeling or mood you'd love it to evoke  ✦  Anything at all — Carl reads every word personally ✦"}
+                          value={genderNotes}
+                          onChange={(e) => setGenderNotes(e.target.value)}
+                        />
+                        <p className="builder-notes-hint"><em>This step is purely optional — but the more you share, the more Carl can make it feel like it was made just for you ✦</em></p>
+                      </div>
+                      <div className="builder-nav">
+                        <button className="btn-outline" onClick={() => setGenderStep(4)}>← Back</button>
+                        <button className="btn-skip" onClick={() => setGenderStep(6)}>skip for now ✦</button>
+                        <button className="btn-primary"
+                          style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"}}
+                          onClick={() => setGenderStep(6)}>Show me my arrangement ✦</button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Step 6: Contact + Review + Submit */}
+                  {genderStep === 6 && (
+                    <div className="builder-review" style={{marginTop:"2rem"}}>
+                      <div className="builder-summary">
+                        <div className="summary-title">{genderChoice === "boy" ? "💙" : "🩷"} Your Gender Reveal Arrangement</div>
+                        <div className="summary-row"><span>Theme</span><span>{genderChoice === "boy" ? "Baby Boy — Blue & White" : "Baby Girl — Pink & Cream"}</span></div>
+                        {GENDER_KEYS.map((k, i) => {
+                          const selId = genderSel[k];
+                          if (!selId || selId === "__skip__") return null;
+                          const sel = GENDER_DATA[i].find((o) => o.id === selId);
+                          return sel ? (
+                            <div key={k} className="summary-row">
+                              <span>{GENDER_STEPS[i]}</span>
+                              <span>{sel.emoji} {sel.name} {sel.price !== undefined ? `(+$${sel.price})` : <em className="tbd-tag">(+ TBD by weight)</em>}</span>
+                            </div>
+                          ) : null;
+                        })}
+                        {genderNotes && (
+                          <div className="summary-row summary-row--notes">
+                            <span>Notes</span>
+                            <span className="summary-notes-text">"{genderNotes}"</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Contact fields */}
+                      <div className="gender-contact-fields">
+                        <h4 className="gender-contact-title">✦ Almost there — where should Carl send your quote?</h4>
+                        <div className="form-row">
+                          <div className="form-group">
+                            <label className="form-label">Your Name</label>
+                            <input className="form-input" placeholder="Jane Smith" required value={genderContact.name} onChange={(e) => setGenderContact((c) => ({...c, name: e.target.value}))} />
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">Email</label>
+                            <input className="form-input" type="email" placeholder="jane@email.com" required value={genderContact.email} onChange={(e) => setGenderContact((c) => ({...c, email: e.target.value}))} />
+                          </div>
+                        </div>
+                        <div className="form-row">
+                          <div className="form-group">
+                            <label className="form-label">Phone (optional)</label>
+                            <input className="form-input" placeholder="(352) 555-0100" value={genderContact.phone} onChange={(e) => setGenderContact((c) => ({...c, phone: e.target.value}))} />
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">Needed By (optional)</label>
+                            <input className="form-input" type="date" value={genderContact.date} onChange={(e) => setGenderContact((c) => ({...c, date: e.target.value}))} />
+                          </div>
+                        </div>
+                      </div>
+
+                      <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const data = new FormData();
+                        data.append("request_type", "Gender Reveal Arrangement");
+                        data.append("gender_choice", genderChoice === "boy" ? "Boy (Blue)" : "Girl (Pink)");
+                        data.append("name", genderContact.name);
+                        data.append("email", genderContact.email);
+                        if (genderContact.phone) data.append("phone", genderContact.phone);
+                        if (genderContact.date)  data.append("needed_by", genderContact.date);
+                        GENDER_KEYS.forEach((k, i) => {
+                          const selId = genderSel[k];
+                          if (!selId || selId === "__skip__") return;
+                          const sel = GENDER_DATA[i].find((o) => o.id === selId);
+                          if (sel) data.append(GENDER_STEPS[i].toLowerCase(), sel.name);
+                        });
+                        if (genderNotes) data.append("additional_details", genderNotes);
+                        handleGenderSubmit(e);
+                      }} className="booking-form" style={{marginTop:"1rem"}}>
+                        <input type="hidden" name="request_type" value="Gender Reveal Arrangement" />
+                        <input type="hidden" name="gender_choice" value={genderChoice === "boy" ? "Boy (Blue)" : "Girl (Pink)"} />
+                        <input type="hidden" name="name" value={genderContact.name} />
+                        <input type="hidden" name="email" value={genderContact.email} />
+                        <input type="hidden" name="phone" value={genderContact.phone} />
+                        <input type="hidden" name="needed_by" value={genderContact.date} />
+                        {GENDER_KEYS.map((k, i) => {
+                          const selId = genderSel[k];
+                          if (!selId || selId === "__skip__") return null;
+                          const sel = GENDER_DATA[i].find((o) => o.id === selId);
+                          return sel ? <input key={k} type="hidden" name={GENDER_STEPS[i].toLowerCase()} value={sel.name} /> : null;
+                        })}
+                        {genderNotes && <input type="hidden" name="additional_details" value={genderNotes} />}
+                        <div className="builder-nav" style={{marginTop:"1.5rem"}}>
+                          <button type="button" className="btn-outline" onClick={() => setGenderStep(5)}>← Back</button>
+                          <button type="button" className="btn-outline" onClick={() => { setGenderChoice(null); setGenderStep(0); setGenderSel({ filler:null, greenery:null, substrate:null, vase:null, size:null }); setGenderNotes(""); setGenderContact({ name:"", email:"", phone:"", date:"" }); }}>Start Over</button>
+                          <button type="submit" className="submit-btn gender-submit"
+                            disabled={genderForm.submitting || !genderContact.name || !genderContact.email}
+                            style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a", flex:1, marginTop:0}}>
+                            {genderForm.submitting ? "Sending…" : `✦ Request My ${genderChoice === "boy" ? "💙 Boy" : "🩷 Girl"} Arrangement Quote`}
+                          </button>
+                        </div>
+                        <p className="custom-request-note">🌸 Carl will reply within 24 hours with a personal quote. No commitment required.</p>
+                      </form>
                     </div>
-                    <div className="form-group">
-                      <label className="form-label" htmlFor="gr-notes">Additional Details (optional)</label>
-                      <textarea
-                        id="gr-notes"
-                        name="additional_details"
-                        className="form-textarea"
-                        placeholder="Any specific flowers, color shades, style preferences, where it will be displayed, budget range, or anything else Carl should know..."
-                      />
-                      <ValidationError field="additional_details" errors={genderForm.errors} className="field-error" />
-                    </div>
-                    <ValidationError errors={genderForm.errors} className="field-error" />
-                    <button type="submit" className="submit-btn gender-submit" disabled={genderForm.submitting}
-                      style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"}}>
-                      {genderForm.submitting ? "Sending…" : `✦ Request My ${genderChoice === "boy" ? "💙 Boy" : "🩷 Girl"} Arrangement Quote`}
-                    </button>
-                    <p className="custom-request-note">🌸 Carl will reply within 24 hours with a personal quote. No commitment required.</p>
-                  </form>
+                  )}
                 </>
               )}
             </div>
