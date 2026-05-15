@@ -127,6 +127,7 @@ export default function App() {
   const cartTotal = cart.reduce((s, i) => s + i.price, 0);
 
   const handleCheckout = async () => {
+    if (cart.length === 0) return;
     setCheckingOut(true);
     try {
       const res = await fetch("/api/checkout", {
@@ -188,6 +189,7 @@ export default function App() {
     setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null, size: null });
     setBuilderColors({ focal: "", filler: "", greenery: "" });
     setBuilderNotes("");
+    setSelectedSubstrate([]);
   };
 
   // ── FIXED: sends all selected components to /api/checkout instead of
@@ -219,6 +221,7 @@ export default function App() {
         setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null, size: null });
         setBuilderColors({ focal: "", filler: "", greenery: "" });
         setBuilderNotes("");
+        setSelectedSubstrate([]);
       } else {
         alert(data.error || "Could not start checkout. Please try again.");
         setCheckingOut(false);
@@ -399,7 +402,8 @@ export default function App() {
                   <button className="btn-skip" onClick={() => { setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: "__skip__" })); setBuilderStep((s) => s + 1); }}>
                     not for me
                   </button>
-                  <button className="btn-primary" onClick={() => setBuilderStep((s) => s + 1)}>
+                  <button className="btn-primary" onClick={() => setBuilderStep((s) => s + 1)}
+                    disabled={!builderSel[BUILDER_KEYS[builderStep]] && builderStep < 6}>
                     {builderStep === 5 ? "Almost There ✦" : "I love it, next →"}
                   </button>
                 </div>
@@ -641,7 +645,8 @@ export default function App() {
                         <button className="btn-skip" onClick={() => { setGenderSel((g) => ({ ...g, [GENDER_KEYS[genderStep]]: "__skip__" })); setGenderStep((s) => s + 1); }}>not for me</button>
                         <button className="btn-primary"
                           style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"}}
-                          onClick={() => setGenderStep((s) => s + 1)}>
+                          onClick={() => setGenderStep((s) => s + 1)}
+                          disabled={!genderSel[GENDER_KEYS[genderStep]]}>
                           {genderStep === 4 ? "Almost There ✦" : "I love it, next →"}
                         </button>
                       </div>
@@ -721,24 +726,7 @@ export default function App() {
                         </div>
                       </div>
 
-                      <form onSubmit={(e) => {
-                        e.preventDefault();
-                        const data = new FormData();
-                        data.append("request_type", "Gender Reveal Arrangement");
-                        data.append("gender_choice", genderChoice === "boy" ? "Boy (Blue)" : "Girl (Pink)");
-                        data.append("name", genderContact.name);
-                        data.append("email", genderContact.email);
-                        if (genderContact.phone) data.append("phone", genderContact.phone);
-                        if (genderContact.date)  data.append("needed_by", genderContact.date);
-                        GENDER_KEYS.forEach((k, i) => {
-                          const selId = genderSel[k];
-                          if (!selId || selId === "__skip__") return;
-                          const sel = GENDER_DATA[i].find((o) => o.id === selId);
-                          if (sel) data.append(GENDER_STEPS[i].toLowerCase(), sel.name);
-                        });
-                        if (genderNotes) data.append("additional_details", genderNotes);
-                        handleGenderSubmit(e);
-                      }} className="booking-form" style={{marginTop:"1rem"}}>
+                      <form onSubmit={handleGenderSubmit} className="booking-form" style={{marginTop:"1rem"}}>
                         <input type="hidden" name="request_type" value="Gender Reveal Arrangement" />
                         <input type="hidden" name="gender_choice" value={genderChoice === "boy" ? "Boy (Blue)" : "Girl (Pink)"} />
                         <input type="hidden" name="name" value={genderContact.name} />
