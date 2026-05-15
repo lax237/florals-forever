@@ -28,7 +28,7 @@ const FILLER_OPTIONS = [
 const GREENERY_OPTIONS = [
   { id: "eucalyptus", emoji: "🌿", name: "Eucalyptus",   sub: "Fresh & modern",     price: 8,  stripeLink: "https://buy.stripe.com/28E28r8Cs1fJfus6tz9sk0i" },
   { id: "fern",       emoji: "🍃", name: "Fern Fronds",  sub: "Lush & traditional", price: 6,  stripeLink: "https://buy.stripe.com/eVqbJ16ukbUn2HG19f9sk0j" },
-  { id: "ivy",        emoji: "🌱", name: "Trailing Ivy", sub: "Cascading effect",   price: 7,  stripeLink: "https://buy.stripe.com/4gM3cvf0Q2jNaa83hn9sk0k" },
+  { id: "ivy",        emoji: "🍃", name: "Trailing Ivy", sub: "Cascading effect",   price: 7,  stripeLink: "https://buy.stripe.com/4gM3cvf0Q2jNaa83hn9sk0k" },
   { id: "succulent",  emoji: "🪴", name: "Succulents",   sub: "Sculptural accent",  price: 10, stripeLink: "https://buy.stripe.com/aFa7sL4mce2v6XWcRX9sk0l" },
 ];
 const VASE_OPTIONS = [
@@ -387,13 +387,13 @@ export default function App() {
                 {/* Color dropdown for focal, filler, greenery steps */}
                 {getColorKey(BUILDER_KEYS[builderStep]) && builderSel[BUILDER_KEYS[builderStep]] && (
                   <div className="color-picker-wrap">
-                    <label className="color-picker-label">Breathe life into it — choose your color ✦</label>
+                    <label className="color-picker-label">Breathe life into it — choose your color</label>
                     <select
                       className="color-picker-select"
                       value={builderColors[BUILDER_KEYS[builderStep]]}
                       onChange={(e) => setBuilderColors((c) => ({ ...c, [BUILDER_KEYS[builderStep]]: e.target.value }))}
                     >
-                      <option value="">✦ Pick a shade that speaks to you...</option>
+                      <option value="">Pick a shade that speaks to you...</option>
                       {getColorsForStep(BUILDER_KEYS[builderStep], builderSel[BUILDER_KEYS[builderStep]]).map((c) => (
                         <option key={c} value={c}>{c}</option>
                       ))}
@@ -405,7 +405,7 @@ export default function App() {
                 <div className="builder-nav">
                   <button className="btn-outline" onClick={() => setBuilderStep((s) => Math.max(0, s - 1))} disabled={builderStep === 0}>← Back</button>
                   <button className="btn-skip" onClick={() => { setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: "__skip__" })); setBuilderStep((s) => s + 1); }}>
-                    not for me ✦
+                    ✦ not for me ✦
                   </button>
                   <button className="btn-primary" onClick={() => setBuilderStep((s) => s + 1)}>
                     {builderStep === 5 ? "Almost There ✦" : "I love it, next →"}
@@ -426,7 +426,7 @@ export default function App() {
                 </div>
                 <div className="builder-nav">
                   <button className="btn-outline" onClick={() => setBuilderStep(5)}>← Back</button>
-                  <button className="btn-skip" onClick={() => setBuilderStep(7)}>skip for now ✦</button>
+                  <button className="btn-skip" onClick={() => setBuilderStep(7)}>✦ skip for now ✦</button>
                   <button className="btn-primary" onClick={() => setBuilderStep(7)}>Show me my arrangement ✦</button>
                 </div>
               </>
@@ -646,7 +646,7 @@ export default function App() {
                       </div>
                       <div className="builder-nav">
                         <button className="btn-outline" onClick={() => { if (genderStep === 0) { setGenderChoice(null); setGenderStep(0); setGenderSel({ filler:null, greenery:null, substrate:null, vase:null, size:null }); setGenderNotes(""); } else setGenderStep((s) => s - 1); }} >← Back</button>
-                        <button className="btn-skip" onClick={() => { setGenderSel((g) => ({ ...g, [GENDER_KEYS[genderStep]]: "__skip__" })); setGenderStep((s) => s + 1); }}>not for me ✦</button>
+                        <button className="btn-skip" onClick={() => { setGenderSel((g) => ({ ...g, [GENDER_KEYS[genderStep]]: "__skip__" })); setGenderStep((s) => s + 1); }}>✦ not for me ✦</button>
                         <button className="btn-primary"
                           style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"}}
                           onClick={() => setGenderStep((s) => s + 1)}>
@@ -671,7 +671,7 @@ export default function App() {
                       </div>
                       <div className="builder-nav">
                         <button className="btn-outline" onClick={() => setGenderStep(4)}>← Back</button>
-                        <button className="btn-skip" onClick={() => setGenderStep(6)}>skip for now ✦</button>
+                        <button className="btn-skip" onClick={() => setGenderStep(6)}>✦ skip for now ✦</button>
                         <button className="btn-primary"
                           style={{background: genderChoice === "boy" ? "#5b8fc9" : "#d4789a"}}
                           onClick={() => setGenderStep(6)}>Show me my arrangement ✦</button>
