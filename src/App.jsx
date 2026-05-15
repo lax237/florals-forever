@@ -32,9 +32,9 @@ const GREENERY_OPTIONS = [
   { id: "succulent",  emoji: "🪴", name: "Succulents",   sub: "Sculptural accent",  price: 10, stripeLink: "https://buy.stripe.com/aFa7sL4mce2v6XWcRX9sk0l" },
 ];
 const VASE_OPTIONS = [
-  { id: "mason",      emoji: "🫙", name: "Mason Jar",      sub: "Rustic charm",     price: 12, stripeLink: "https://buy.stripe.com/bJebJ14mc2jNcig9FL9sk0m" },
-  { id: "ceramic",    emoji: "🪆", name: "Ceramic Vase",   sub: "Artisan crafted",  price: 20, stripeLink: "https://buy.stripe.com/6oUaEX7yoaQj9644lr9sk0n" },
-  { id: "glass",      emoji: "🍶", name: "Clear Glass",    sub: "Timeless & clean", price: 14, stripeLink: "https://buy.stripe.com/3cI00j4mc8Ib820cRX9sk0o" },
+  { id: "mason",      emoji: "🫙", name: "Mason Jar",      sub: "Old-timey charm",     price: 12, stripeLink: "https://buy.stripe.com/bJebJ14mc2jNcig9FL9sk0m" },
+  { id: "ceramic",    emoji: "🏛️", name: "Ceramic Vase",   sub: "Artisan crafted",  price: 20, stripeLink: "https://buy.stripe.com/6oUaEX7yoaQj9644lr9sk0n" },
+  { id: "glass",      emoji: "🥃", name: "Clear Glass",    sub: "Timeless & clean", price: 14, stripeLink: "https://buy.stripe.com/3cI00j4mc8Ib820cRX9sk0o" },
   { id: "terracotta", emoji: "🏺", name: "Terracotta Pot", sub: "Earthy & warm",    price: 16, stripeLink: "https://buy.stripe.com/5kQ4gz9Gw3nR820bNT9sk0p" },
 ];
 
@@ -49,19 +49,19 @@ const BRIDAL_ARRANGEMENTS = [
 
 const SUBSTRATE_OPTIONS = [
   { id: "river-stones",  emoji: "🪨", name: "River Stones",      sub: "Smooth & natural" },
-  { id: "dec-rocks",     emoji: "🪨", name: "Decorative Rocks",   sub: "Polished & earthy" },
   { id: "marbles",       emoji: "🔵", name: "Glass Marbles",      sub: "Colorful & playful" },
   { id: "peat-moss",     emoji: "🌿", name: "Peat Moss",          sub: "Organic & lush" },
+  { id: "wood-wool",    emoji: "🪵", name: "Wood Wool",           sub: "Soft & textured" },
   { id: "colored-sand",  emoji: "🏖️", name: "Colored Sand",       sub: "Soft & decorative" },
-  { id: "aqua-gravel",   emoji: "🫧", name: "Aquarium Gravel",    sub: "Clean & refined" },
-  { id: "dried-moss",    emoji: "🍃", name: "Dried Moss",         sub: "Rustic & textured" },
   { id: "moss",          emoji: "🌿", name: "Moss",               sub: "Fresh & velvety" },
+  { id: "dried-moss",    emoji: "🍃", name: "Dried Moss",         sub: "Rustic & textured" },
+  { id: "aqua-gravel",   emoji: "🫧", name: "Aquarium Gravel",    sub: "Clean & refined" },
   { id: "dec-pebbles",   emoji: "⚪", name: "Decorative Pebbles", sub: "Classic & versatile" },
-  { id: "wood-chips",    emoji: "🪵", name: "Wood Chips / Bark",  sub: "Warm & woodland" },
+  { id: "dec-rocks",     emoji: "🪨", name: "Decorative Rocks",   sub: "Polished & earthy" },
   { id: "lichen",        emoji: "🌱", name: "Preserved Lichen",   sub: "Botanical & unique" },
   { id: "sea-glass",     emoji: "💚", name: "Sea Glass",          sub: "Coastal & elegant" },
   { id: "lava-rocks",   emoji: "🌋", name: "Lava Rocks",         sub: "Volcanic & dramatic" },
-  { id: "wood-wool",    emoji: "🪵", name: "Wood Wool",           sub: "Soft & textured" },
+  { id: "wood-chips",    emoji: "🪵", name: "Wood Chips / Bark",  sub: "Warm & woodland" },
   { id: "dec-gems",     emoji: "💎", name: "Decorative Gemstones", sub: "Glamorous & sparkling" },
   { id: "no-pref",       emoji: "✨", name: "No Preference",      sub: "Carl will choose" },
 ];
@@ -335,13 +335,13 @@ export default function App() {
               className={`builder-tab ${builderMode === "guided" ? "active" : ""}`}
               onClick={() => setBuilderMode("guided")}
             >
-              ✦ Step-by-Step Builder
+              ✦ Step-by-Step Builder ✦
             </button>
             <button
               className={`builder-tab ${builderMode === "custom" ? "active" : ""}`}
               onClick={() => setBuilderMode("custom")}
             >
-              ✍ Describe Your Own
+              ✦ Describe Your Own ✦
             </button>
           </div>
 
@@ -789,8 +789,8 @@ export default function App() {
         </div>
         <div className="builder-inner">
           <div className="builder-tabs">
-            <button className={`builder-tab ${bridalTab === "preset" ? "active" : ""}`} onClick={() => setBridalTab("preset")}>✦ Preset Collections</button>
-            <button className={`builder-tab ${bridalTab === "custom" ? "active" : ""}`} onClick={() => setBridalTab("custom")}>✍ Custom Bridal Request</button>
+            <button className={`builder-tab ${bridalTab === "preset" ? "active" : ""}`} onClick={() => setBridalTab("preset")}>✦ Preset Collections ✦</button>
+            <button className={`builder-tab ${bridalTab === "custom" ? "active" : ""}`} onClick={() => setBridalTab("custom")}>✦ Custom Bridal Request ✦</button>
           </div>
 
           {bridalTab === "preset" && (
@@ -862,24 +862,9 @@ export default function App() {
                       </div>
                     </div>
                     <div className="form-group">
-                      <label className="form-label">Vase / Container Style</label>
-                      <div className="gender-vase-grid">
-                        {VASE_OPTIONS.map((v) => (
-                          <label key={v.id} className="gender-vase-option">
-                            <input type="radio" name="vase_choice" value={`${v.name} — ${v.sub}`} />
-                            <div className="gender-vase-card">
-                              <span className="option-emoji">{v.emoji}</span>
-                              <div className="option-name">{v.name}</div>
-                              <div className="option-sub">{v.sub}</div>
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="form-group">
                       <label className="form-label" htmlFor="br-vision">Describe Your Bridal Vision</label>
                       <textarea id="br-vision" name="bridal_vision" className="form-textarea custom-textarea"
-                        placeholder="Colors, flowers, style, theme, number of arrangements, budget range, inspiration photos you can describe..." />
+                        placeholder="Describe your dream — colors, flowers, style, theme, vase preference (mason jar, ceramic, clear glass, terracotta), number of arrangements, budget range, inspiration photos you can describe, anything at all..." defaultValue="" />
                       <ValidationError field="bridal_vision" errors={bridalForm.errors} className="field-error" />
                     </div>
                     <ValidationError errors={bridalForm.errors} className="field-error" />
@@ -952,10 +937,10 @@ export default function App() {
               </div>
               <ValidationError errors={formState.errors} className="field-error" />
               <button type="submit" className="submit-btn" disabled={formState.submitting}>
-                {formState.submitting ? "Sending…" : "✦ Send Consultation Request"}
+                {formState.submitting ? "Sending…" : "✦ Send Consultation Request ✦"}
               </button>
               <div className="shipping-disclaimer" id="disclaimer">
-                <h4 className="disclaimer-title">✨ A Little Love Note About Your Arrangement</h4>
+                <h4 className="disclaimer-title">✨ A Little Love Note About Your Arrangement ✨</h4>
                 <p className="shipping-free-note">🚚 <strong>Shipping is always free</strong> — because beautiful things should arrive at your door without any extra cost.</p>
                 <p>Your flowers have traveled to reach you — here's how to help them settle in and truly shine:</p>
                 <ul>
