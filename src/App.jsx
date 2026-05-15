@@ -136,11 +136,7 @@ export default function App() {
       });
       const data = await res.json();
       if (data.url) {
-        const w = Math.min(window.screen.width * 0.85, 1100);
-        const h = Math.min(window.screen.height * 0.85, 800);
-        const left = (window.screen.width - w) / 2;
-        const top  = (window.screen.height - h) / 2;
-        window.open(data.url, "_blank", `width=${Math.round(w)},height=${Math.round(h)},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`);
+        window.location.href = data.url;
       } else {
         alert("Error: " + (data.error || "Could not start checkout. Please try again."));
         setCheckingOut(false);
@@ -218,11 +214,7 @@ export default function App() {
       });
       const data = await res.json();
       if (data.url) {
-        const w = Math.min(window.screen.width * 0.85, 1100);
-        const h = Math.min(window.screen.height * 0.85, 800);
-        const left = (window.screen.width - w) / 2;
-        const top  = (window.screen.height - h) / 2;
-        window.open(data.url, "_blank", `width=${Math.round(w)},height=${Math.round(h)},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`);
+        window.location.href = data.url;
         setBuilderStep(0);
         setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null, size: null });
         setBuilderColors({ focal: "", filler: "", greenery: "" });
