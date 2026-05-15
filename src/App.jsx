@@ -129,7 +129,6 @@ export default function App() {
   const handleCheckout = async () => {
     if (cart.length === 0) return;
     setCheckingOut(true);
-    const stripeWindow = window.open("", "_blank");
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -138,14 +137,18 @@ export default function App() {
       });
       const data = await res.json();
       if (data.url) {
-        stripeWindow.location.href = data.url;
+        const a = document.createElement("a");
+        a.href = data.url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       } else {
-        stripeWindow.close();
         alert("Error: " + (data.error || "Could not start checkout. Please try again."));
         setCheckingOut(false);
       }
     } catch (err) {
-      stripeWindow.close();
       alert("Network error. Please check your connection and try again.");
       setCheckingOut(false);
     }
@@ -199,7 +202,6 @@ export default function App() {
   //           redirecting to the vase's individual Stripe link only.
   const buyCustom = async () => {
     setCheckingOut(true);
-    const stripeWindow = window.open("", "_blank");
     const items = [
       { name: "Custom Arrangement — Base & Labour", price: 35 },
       ...BUILDER_KEYS.map((k, i) => {
@@ -220,19 +222,23 @@ export default function App() {
       });
       const data = await res.json();
       if (data.url) {
-        stripeWindow.location.href = data.url;
+        const a = document.createElement("a");
+        a.href = data.url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
         setBuilderStep(0);
         setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null, size: null });
         setBuilderColors({ focal: "", filler: "", greenery: "" });
         setBuilderNotes("");
         setSelectedSubstrate([]);
       } else {
-        stripeWindow.close();
         alert(data.error || "Could not start checkout. Please try again.");
         setCheckingOut(false);
       }
     } catch {
-      stripeWindow.close();
       alert("Network error. Please check your connection and try again.");
       setCheckingOut(false);
     }
