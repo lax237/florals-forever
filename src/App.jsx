@@ -137,13 +137,12 @@ export default function App() {
       });
       const data = await res.json();
       if (data.url) {
-        const a = document.createElement("a");
-        a.href = data.url;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        const w = 520, h = 700;
+        const left = Math.round((window.screen.width - w) / 2);
+        const top  = Math.round((window.screen.height - h) / 2);
+        window.open(data.url, "StripeCheckout", `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no`);
+        setCheckingOut(false);
+        setCartOpen(false);
       } else {
         alert("Error: " + (data.error || "Could not start checkout. Please try again."));
         setCheckingOut(false);
@@ -222,13 +221,11 @@ export default function App() {
       });
       const data = await res.json();
       if (data.url) {
-        const a = document.createElement("a");
-        a.href = data.url;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        const w = 520, h = 700;
+        const left = Math.round((window.screen.width - w) / 2);
+        const top  = Math.round((window.screen.height - h) / 2);
+        window.open(data.url, "StripeCheckout", `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no`);
+        setCheckingOut(false);
         setBuilderStep(0);
         setBuilderSel({ focal: null, filler: null, greenery: null, substrate: null, vase: null, size: null });
         setBuilderColors({ focal: "", filler: "", greenery: "" });
