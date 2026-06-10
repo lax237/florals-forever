@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useForm, ValidationError } from "@formspree/react";
 import "./App.css";
-
 const ARRANGEMENTS = [
   { id: 1, emoji: "🌸", name: "Blushing Garden",   desc: "Soft roses, baby's breath & eucalyptus in a vintage mason jar. Perfect for gifting.", price: 62,  tags: ["Gift", "Home Décor"],    stripeLink: "https://buy.stripe.com/bJe8wP6uk3nR5TS9FL9sk0q" },
   { id: 2, emoji: "🌺", name: "Coral Sunrise",      desc: "Bold focal blooms with lush greenery in a modern matte vase. A statement piece.",    price: 88,  tags: ["Home Décor", "Offices"], stripeLink: "https://buy.stripe.com/7sYeVdaKAe2v6XW6tz9sk0r" },
@@ -10,7 +9,6 @@ const ARRANGEMENTS = [
   { id: 5, emoji: "🌷", name: "Sweetheart Tulips",  desc: "Vibrant tulips in a terracotta pot. Timeless anniversary or birthday gift.",          price: 52,  tags: ["Gift", "Anniversary"],   stripeLink: "https://buy.stripe.com/fZu14n8Cs5vZ6XWaJP9sk0u" },
   { id: 6, emoji: "🌻", name: "Golden Hour",        desc: "Sunflowers, wildflowers, and golden accents that bring joy to any room.",             price: 74,  tags: ["Home Décor", "Gift"],    stripeLink: "https://buy.stripe.com/5kQcN5cSI7E7dmk05b9sk0v" },
 ];
-
 const FOCAL_OPTIONS = [
   { id: "rose",      emoji: "🌹", name: "Roses",      sub: "Classic & timeless", price: 16, stripeLink: "https://buy.stripe.com/eVq4gz9Gw8Ibgywf059sk0x" },
   { id: "peony",     emoji: "🌸", name: "Peonies",    sub: "Full & romantic",    price: 20, stripeLink: "https://buy.stripe.com/eVq3cv7yo4rV6XW05b9sk0y" },
@@ -37,7 +35,6 @@ const VASE_OPTIONS = [
   { id: "glass",      emoji: "🥃", name: "Clear Glass",    sub: "Timeless & clean", price: 14, stripeLink: "https://buy.stripe.com/3cI00j4mc8Ib820cRX9sk0o" },
   { id: "terracotta", emoji: "🏺", name: "Terracotta Pot", sub: "Earthy & warm",    price: 16, stripeLink: "https://buy.stripe.com/5kQ4gz9Gw3nR820bNT9sk0p" },
 ];
-
 const BRIDAL_ARRANGEMENTS = [
   { id: "b1", emoji: "🌼", name: "Classic White Elegance",  desc: "All-white roses, peonies & cascading baby's breath in a clear glass vase. Timeless bridal beauty.", price: 145, tags: ["Bridal", "Bouquet"] },
   { id: "b2", emoji: "🌸", name: "Blush Romance",           desc: "Soft blush peonies, ivory roses & dusty miller in a ceramic vase. Romantic and feminine.", price: 135, tags: ["Bridal", "Centerpiece"] },
@@ -46,7 +43,6 @@ const BRIDAL_ARRANGEMENTS = [
   { id: "b5", emoji: "💛", name: "Golden Meadow",           desc: "Sunflowers, cream roses & golden wheat in a terracotta pot. Rustic elegance for country weddings.", price: 120, tags: ["Bridal", "Rustic"] },
   { id: "b6", emoji: "🪷", name: "Orchid Luxe",             desc: "Exotic orchids, white lilies & sculptural succulents in a tall glass vase. Luxury at its finest.", price: 175, tags: ["Bridal", "Luxury"] },
 ];
-
 const SUBSTRATE_OPTIONS = [
   { id: "river-stones",  emoji: "🪨", name: "River Stones",      sub: "Smooth & natural" },
   { id: "marbles",       emoji: "🔵", name: "Glass Marbles",      sub: "Colorful & playful" },
@@ -65,7 +61,6 @@ const SUBSTRATE_OPTIONS = [
   { id: "dec-gems",     emoji: "💎", name: "Decorative Gemstones", sub: "Glamorous & sparkling" },
   { id: "no-pref",       emoji: "✨", name: "No Preference",      sub: "Carl will choose" },
 ];
-
 const FLOWER_COLORS = {
   rose:        ["Classic Red", "Pure White", "Sunny Yellow", "Soft Pink", "Deep Purple", "Burnt Orange", "Coral Peach", "Lavender", "Champagne Cream", "Dusty Rose", "Midnight Blue", "Sage Green", "Burgundy", "Hot Pink", "Ombre Blush"],
   peony:       ["Pure White", "Blush Pink", "Hot Pink", "Coral", "Classic Red", "Burgundy", "Lavender", "Champagne", "Dusty Mauve", "Cotton Candy", "Peachy Cream", "Magenta", "Soft Lilac", "Rose Gold", "Ivory"],
@@ -82,25 +77,19 @@ const FLOWER_COLORS = {
   ivy:         ["Classic Green", "Variegated Green & White", "Deep Hunter Green", "Sage", "Olive", "Lime", "Dusty Green", "Emerald"],
   succulent:   ["Green Mix", "Purple-Tipped", "Blue-Green", "Red-Tipped", "Dusty Rose", "Silver", "Sage", "Burgundy Edges", "Teal", "Pale Mint"],
 };
-
-
 const OCCASIONS = ["Birthday", "Anniversary", "Wedding", "Home Décor", "Business / Office", "Sympathy", "Just Because", "Holiday"];
-
 const SIZE_OPTIONS = [
   { id: "small",    emoji: "🌱", name: "Small",       sub: "Tabletop & petite",         price: 0 },
   { id: "medium",   emoji: "🌿", name: "Medium",      sub: "Centerpiece & everyday",    price: 15 },
   { id: "large",    emoji: "🌳", name: "Large",       sub: "Statement & floor piece",   price: 35 },
   { id: "xlarge",   emoji: "🏡", name: "Extra Large", sub: "Grand & full installation", price: 60 },
 ];
-
 const BUILDER_STEPS = ["Focal Flower", "Filler", "Greenery", "Substrate", "Vase", "Size"];
 const BUILDER_DATA  = [FOCAL_OPTIONS, FILLER_OPTIONS, GREENERY_OPTIONS, SUBSTRATE_OPTIONS, VASE_OPTIONS, SIZE_OPTIONS];
 const BUILDER_KEYS  = ["focal", "filler", "greenery", "substrate", "vase", "size"];
-
 const GENDER_STEPS = ["Filler", "Greenery", "Substrate", "Vase", "Size"];
 const GENDER_DATA  = [FILLER_OPTIONS, GREENERY_OPTIONS, SUBSTRATE_OPTIONS, VASE_OPTIONS, SIZE_OPTIONS];
 const GENDER_KEYS  = ["filler", "greenery", "substrate", "vase", "size"];
-
 export default function App() {
   const [cart, setCart]                       = useState([]);
   const [cartOpen, setCartOpen]               = useState(false);
@@ -112,20 +101,16 @@ export default function App() {
   const [builderColors, setBuilderColors]     = useState({ focal: "", filler: "", greenery: "" });
   const [builderNotes, setBuilderNotes]       = useState("");
   const [bookingOccasion, setBookingOccasion] = useState([]);
-
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2800);
   };
-
   const addToCart = (item) => {
     setCart((c) => [...c, { ...item, cartId: Date.now() + Math.random() }]);
     showToast(`✿ "${item.name}" added to your cart`);
   };
-
   const removeFromCart = (cartId) => setCart((c) => c.filter((i) => i.cartId !== cartId));
   const cartTotal = cart.reduce((s, i) => s + i.price, 0);
-
   const handleCheckout = async () => {
     if (cart.length === 0) return;
     setCheckingOut(true);
@@ -152,27 +137,16 @@ export default function App() {
       setCheckingOut(false);
     }
   };
-
-  const buyNow = (item) => {
-    if (item.stripeLink) {
-      window.location.href = item.stripeLink;
-    } else {
-      alert("Payment link coming soon! Please use the Book a Consultation form to order.");
-    }
-  };
-
   const builderPrice = BUILDER_KEYS.reduce((s, k, i) => {
     const found = BUILDER_DATA[i].find((o) => o.id === builderSel[k]);
     return s + (found && found.price !== undefined ? found.price : 0);
   }, 35);
-
   // Color label helpers
   const getColorKey = (stepKey) => ["focal","filler","greenery"].includes(stepKey) ? stepKey : null;
   const getColorsForStep = (stepKey, selId) => {
     if (!selId) return [];
     return FLOWER_COLORS[selId] || [];
   };
-
   const addCustomToCart = () => {
     const components = BUILDER_KEYS.map((k, i) => {
       const selId = builderSel[k];
@@ -182,7 +156,6 @@ export default function App() {
       const color = builderColors[k] ? ` (${builderColors[k]})` : "";
       return `${sel.emoji} ${sel.name}${color}`;
     }).filter(Boolean).join(", ");
-
     const customItem = {
       name: `Custom Arrangement (${components}${builderNotes ? ` · Note: ${builderNotes.slice(0,40)}…` : ""})`,
       price: builderPrice,
@@ -196,9 +169,6 @@ export default function App() {
     setBuilderNotes("");
     setSelectedSubstrate([]);
   };
-
-  // ── FIXED: sends all selected components to /api/checkout instead of
-  //           redirecting to the vase's individual Stripe link only.
   const buyCustom = async () => {
     setCheckingOut(true);
     const items = [
@@ -240,23 +210,20 @@ export default function App() {
       setCheckingOut(false);
     }
   };
-
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
-
   const [formState, handleBookingSubmit] = useForm("xpqbelga");
-  const [customForm, handleCustomSubmit]  = useForm("xpqbelga"); // reuses same Formspree endpoint
-  const [genderForm, handleGenderSubmit]  = useForm("xpqbelga"); // gender reveal requests
-  const [genderChoice, setGenderChoice]   = useState(null);      // "boy" | "girl" | null
-  const [genderStep, setGenderStep]       = useState(0);         // 0=filler,1=greenery,2=substrate,3=vase,4=size,5=notes,6=review
+  const [customForm, handleCustomSubmit]  = useForm("xpqbelga");
+  const [genderForm, handleGenderSubmit]  = useForm("xpqbelga");
+  const [genderChoice, setGenderChoice]   = useState(null);
+  const [genderStep, setGenderStep]       = useState(0);
   const [genderSel, setGenderSel]         = useState({ filler: null, greenery: null, substrate: null, vase: null, size: null });
   const [genderNotes, setGenderNotes]     = useState("");
   const [genderContact, setGenderContact] = useState({ name:"", email:"", phone:"", date:"" });
-  const [bridalForm, handleBridalSubmit]  = useForm("xpqbelga"); // bridal requests
-  const [bridalTab, setBridalTab]         = useState("preset");  // "preset" | "custom"
+  const [bridalForm, handleBridalSubmit]  = useForm("xpqbelga");
+  const [bridalTab, setBridalTab]         = useState("preset");
   const [selectedSubstrate, setSelectedSubstrate] = useState([]);
-
   return (
     <div className="app">
       <nav className="nav">
@@ -275,7 +242,6 @@ export default function App() {
           </button>
         </div>
       </nav>
-
       <section id="home" className="hero">
         <div className="hero-content">
           <p className="eyebrow">✦ Handcrafted by Carl · Gainesville, Florida ✦</p>
@@ -297,7 +263,6 @@ export default function App() {
         </div>
         <div className="hero-floral" aria-hidden="true">❀</div>
       </section>
-
       <section id="portfolio" className="section section--white">
         <div className="section-header">
           <p className="eyebrow">✦ The Collection ✦</p>
@@ -317,14 +282,12 @@ export default function App() {
                 <div className="portfolio-price">${a.price}</div>
                 <div className="card-btns">
                   <button className="add-to-cart" onClick={() => addToCart(a)}>Add to Cart</button>
-                  <button className="buy-now" onClick={() => buyNow(a)}>Buy Now</button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       </section>
-
       <section id="builder" className="section section--tinted">
         <div className="section-header">
           <p className="eyebrow">✦ Design Studio ✦</p>
@@ -332,7 +295,6 @@ export default function App() {
           <p className="section-sub">Pick each element and Carl will bring your vision to life — or describe your dream arrangement in your own words.</p>
         </div>
         <div className="builder-inner">
-
           {/* ── MODE TABS ── */}
           <div className="builder-tabs">
             <button
@@ -348,7 +310,6 @@ export default function App() {
               ✦ Describe Your Own ✦
             </button>
           </div>
-
           {/* ── GUIDED BUILDER ── */}
           {builderMode === "guided" && (<>
             <div className="builder-steps">
@@ -363,7 +324,6 @@ export default function App() {
                 Notes
               </div>
             </div>
-
             {builderStep < 6 ? (
               <>
                 <h3 className="builder-prompt">
@@ -387,7 +347,6 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-
                 {/* Color dropdown for focal, filler, greenery steps */}
                 {getColorKey(BUILDER_KEYS[builderStep]) && builderSel[BUILDER_KEYS[builderStep]] && (
                   <div className="color-picker-wrap">
@@ -405,7 +364,6 @@ export default function App() {
                     </select>
                   </div>
                 )}
-
                 <div className="builder-nav">
                   <button className="btn-outline" onClick={() => setBuilderStep((s) => Math.max(0, s - 1))} disabled={builderStep === 0}>← Back</button>
                   <button className="btn-skip" onClick={() => { setBuilderSel((b) => ({ ...b, [BUILDER_KEYS[builderStep]]: "__skip__" })); setBuilderStep((s) => s + 1); }}>
@@ -471,7 +429,6 @@ export default function App() {
               </div>
             )}
           </>)}
-
           {/* ── DESCRIBE YOUR OWN ── */}
           {builderMode === "custom" && (
             <div className="custom-request">
@@ -552,10 +509,8 @@ export default function App() {
               )}
             </div>
           )}
-
         </div>
       </section>
-
       {/* ── GENDER REVEAL ── */}
       <section id="gender-reveal" className="section section--white">
         <div className="section-header">
@@ -564,8 +519,6 @@ export default function App() {
           <p className="section-sub">A beautiful handcrafted floral arrangement to celebrate your little one. Carl will create a custom blue or pink design — just for you.</p>
         </div>
         <div className="gender-reveal-inner">
-
-          {/* Gender choice cards */}
           <div className="gender-cards">
             <div
               className={`gender-card gender-card--boy ${genderChoice === "boy" ? "selected" : ""}`}
@@ -586,12 +539,8 @@ export default function App() {
               {genderChoice === "girl" && <div className="gender-selected-badge">✓ Selected</div>}
             </div>
           </div>
-
-          {/* Step-by-step builder — shown after gender is chosen */}
           {genderChoice && (
             <div className="gender-builder-wrap">
-
-              {/* Visual banner */}
               <div className="gender-visual-banner" style={{background: genderChoice === "boy" ? "linear-gradient(135deg,#d0e8f8,#e8f2fc)" : "linear-gradient(135deg,#f8d0e4,#fce8f2)"}}>
                 <span className="gender-visual-icon">{genderChoice === "boy" ? "💙🌿🤍" : "🩷🌸🤍"}</span>
                 <div className="gender-visual-text">
@@ -602,7 +551,6 @@ export default function App() {
                   }</p>
                 </div>
               </div>
-
               {genderForm.succeeded ? (
                 <div className="success-msg" style={{marginTop:"2rem"}}>
                   <div className="success-icon">{genderChoice === "boy" ? "💙" : "🩷"}</div>
@@ -611,7 +559,6 @@ export default function App() {
                 </div>
               ) : (
                 <>
-                  {/* Step progress bar */}
                   <div className="builder-steps" style={{marginTop:"2rem"}}>
                     {GENDER_STEPS.map((s, i) => (
                       <div key={s} className={`builder-step ${genderStep === i ? "active" : genderSel[GENDER_KEYS[i]] ? "done" : ""}`}
@@ -626,8 +573,6 @@ export default function App() {
                       Notes
                     </div>
                   </div>
-
-                  {/* Steps 0-4: option grids */}
                   {genderStep < 5 && (
                     <>
                       <h3 className="builder-prompt">Choose your {GENDER_STEPS[genderStep]}</h3>
@@ -661,8 +606,6 @@ export default function App() {
                       </div>
                     </>
                   )}
-
-                  {/* Step 5: Notes */}
                   {genderStep === 5 && (
                     <>
                       <h3 className="builder-prompt builder-prompt--notes">Anything else on your heart?</h3>
@@ -684,8 +627,6 @@ export default function App() {
                       </div>
                     </>
                   )}
-
-                  {/* Step 6: Contact + Review + Submit */}
                   {genderStep === 6 && (
                     <div className="builder-review" style={{marginTop:"2rem"}}>
                       <div className="builder-summary">
@@ -709,8 +650,6 @@ export default function App() {
                           </div>
                         )}
                       </div>
-
-                      {/* Contact fields */}
                       <div className="gender-contact-fields">
                         <h4 className="gender-contact-title">✦ Almost there — where should Carl send your quote?</h4>
                         <div className="form-row">
@@ -734,7 +673,6 @@ export default function App() {
                           </div>
                         </div>
                       </div>
-
                       <form onSubmit={handleGenderSubmit} className="booking-form" style={{marginTop:"1rem"}}>
                         <input type="hidden" name="request_type" value="Gender Reveal Arrangement" />
                         <input type="hidden" name="gender_choice" value={genderChoice === "boy" ? "Boy (Blue)" : "Girl (Pink)"} />
@@ -768,7 +706,6 @@ export default function App() {
           )}
         </div>
       </section>
-
       {/* ── BRIDAL ── */}
       <section id="bridal" className="section section--tinted">
         <div className="section-header">
@@ -781,7 +718,6 @@ export default function App() {
             <button className={`builder-tab ${bridalTab === "preset" ? "active" : ""}`} onClick={() => setBridalTab("preset")}>✦ Preset Collections ✦</button>
             <button className={`builder-tab ${bridalTab === "custom" ? "active" : ""}`} onClick={() => setBridalTab("custom")}>✦ Custom Bridal Request ✦</button>
           </div>
-
           {bridalTab === "preset" && (
             <div className="portfolio-grid">
               {BRIDAL_ARRANGEMENTS.map((a) => (
@@ -801,7 +737,6 @@ export default function App() {
               ))}
             </div>
           )}
-
           {bridalTab === "custom" && (
             <div className="custom-request">
               {bridalForm.succeeded ? (
@@ -868,7 +803,6 @@ export default function App() {
           )}
         </div>
       </section>
-
       <section id="booking" className="section section--tinted">
         <div className="section-header">
           <p className="eyebrow">✦ Work with Carl ✦</p>
@@ -943,14 +877,12 @@ export default function App() {
           )}
         </div>
       </section>
-
       <footer className="footer">
         <h3>Florals <em>Forever</em></h3>
         <p>Handcrafted by Carl · Gainesville, Florida</p>
         <p className="footer-tagline">✿ Beauty that never fades ✿</p>
         <p className="footer-copy">© 2026 Florals Forever. All arrangements handmade with love.</p>
       </footer>
-
       {cartOpen && (
         <div className="modal-overlay" onClick={() => setCartOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -983,7 +915,6 @@ export default function App() {
           </div>
         </div>
       )}
-
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
